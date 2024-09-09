@@ -7,13 +7,20 @@
   <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
 </head>
 <body>
-  <h1>VSCode Eye Tracker</h1>
+  <h1>VisionScript Baby!!!</h1>
   <script>
     window.onload = function() {
       webgazer.setGazeListener(function(data, timestamp) {
         if (data) {
           console.log(data, timestamp);
-          // We'll need to see how this data appears, later we can try csv? JSON?
+          // Send data to the server. Log only for initial dev
+          fetch('/data', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ data: { x: data.x, y: data.y, timestamp } })
+          });
         }
       }).begin();
     };
