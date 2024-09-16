@@ -42,6 +42,9 @@ app.post('/pause', (req, res) => {
   res.send({ message: 'Session paused', sessionId: sessionId });
 });
 
+// Need to add webgazer.resume()
+
+
 app.post('/end', (req, res) => {
   if (sessionData[sessionId]) {
     fs.writeFileSync(`session-${sessionId}.txt`, JSON.stringify(sessionData[sessionId]));
