@@ -8,11 +8,30 @@
 </head>
 <body>
   <h1>VisionScript Baby!!!</h1>
+
+  <div id="log" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-top: 20px;"></div>
+
   <script>
-    window.onload = function() {
-      webgazer.setGazeListener(function(data, timestamp) {
-        if (data) {
-          console.log(data, timestamp);
+
+    // timestamp / elapsedTime - time in milliseconds since begin() was invoked
+    window.onload = function() 
+    {
+      webgazer.setGazeListener(function(data, timestamp) 
+      {
+        if (data) 
+        {
+          const logElement = document.getElementById('log');
+          const message = `X: ${data.x.toFixed(2)}, Y: ${data.y.toFixed(2)}, Timestamp: ${timestamp.toFixed(2)}`;
+          
+
+          console.log(message); 
+
+          // Update log browser output window
+          logElement.innerHTML += message + '<br>';
+
+          // Auto scroll as the log continues
+          // logElement.scrollTop = logElement.scrollHeight;
+
           // Send data to the server. Log only for initial dev
           fetch('/data', {
             method: 'POST',
@@ -22,8 +41,13 @@
             body: JSON.stringify({ data: { x: data.x, y: data.y, timestamp } })
           });
         }
+
       }).begin();
+
+      webgazer.showPredictionPoints(true);
+
     };
+
   </script>
 </body>
 </html>
