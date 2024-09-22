@@ -5,10 +5,10 @@ namespace DataProcessor.Models
         public long Id { get; set; }
         public long UserId { get; set; }
         public long SessionId { get; set; }
-        public int TimeStamp { get; set; } // Is Time Elapsed (ms)
-        public int GazeX { get; set; }
-        public int GazeY { get; set; }
-        public int PupilDiameter { get; set; }
+        public double Timestamp { get; set; } // Is Time Elapsed (ms)
+        public double GazeX { get; set; }
+        public double GazeY { get; set; }
+        public double PupilDiameter { get; set; }
 
         // From js, data could appear like so:
 
