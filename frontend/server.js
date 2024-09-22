@@ -45,7 +45,10 @@ app.post('/pause', (req, res) => {
   res.send({ message: 'Session paused', sessionId: sessionId });
 });
 
-// Need to add webgazer.resume()
+app.post('/resume', (req, res) => {
+  // Placeholder to handle session resume
+  res.send({ message: 'Session resumed', sessionId: sessionId });
+});
 
 app.post('/end', async (req, res) => {
   if (sessionData[sessionId]) {
