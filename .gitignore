@@ -1,0 +1,10 @@
+# Ignore bin directories
+bin/
+
+# Ignore debug directories
+debug/
+
+# Ignore obj directories
+obj/
+
+node_modules/
