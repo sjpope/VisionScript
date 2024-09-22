@@ -2,7 +2,7 @@ using DataProcessor.Models;
 
 namespace DataProcessor.Services
 {
-    public class DataProcessor
+    public class ProcessingService
     {
         // TO-DO: Implement Data Processing Logic
         public ProcessResult ProcessData(List<EyeData> sessionData)
@@ -14,6 +14,8 @@ namespace DataProcessor.Services
             List<Fixation> fixations = new List<Fixation>();
             List<Saccade> saccades = new List<Saccade>();
 
+
+            
             double threshold = 50; // Pixels
             double minFixation = 100; // ms
 

@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VisionScript Baby!!!</title>
   <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+  <script src="js/precision_calculation.js"></script>
+  <script src="js/calibration.js"></script>
+  <script src="js/main.js"></script>
 </head>
 <body>
   <h1>VisionScript Baby!!!</h1>
@@ -17,7 +20,25 @@
     <button onclick="startSession()">Start Session</button>
     <button onclick="pauseSession()">Pause Session</button>
     <button onclick="endSession()">End Session</button>
+    <button onclick="Restart()">Restart Calibration</button>
+    <span id="Accuracy">Not yet Calibrated</span>
   </div>
+
+  <!-- Calibration Points -->
+  <div id="CalibrationDiv">
+    <button class="Calibration" id="Pt1"></button>
+    <button class="Calibration" id="Pt2"></button>
+    <button class="Calibration" id="Pt3"></button>
+    <button class="Calibration" id="Pt4"></button>
+    <button class="Calibration" id="Pt5"></button>
+    <button class="Calibration" id="Pt6"></button>
+    <button class="Calibration" id="Pt7"></button>
+    <button class="Calibration" id="Pt8"></button>
+    <button class="Calibration" id="Pt9"></button>
+  </div>
+
+  <!-- Canvas for plotting -->
+  <canvas id="plotting_canvas"></canvas>
 
   <script>
     let isTracking = false;
@@ -66,15 +87,38 @@
     }
 
     function endSession() {
-      fetch('/end', { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-          console.log(data.message);
-          webgazer.end(); // Completely stop the regression model
-          isTracking = false;
-        });
-    }
+    fetch('/end', { method: 'POST' })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data.message);
+        console.log('Metrics:', data.metrics);
+        webgazer.end(); // Completely stop the regression model
+        isTracking = false;
 
+        // Display the metrics
+        const logElement = document.getElementById('log');
+        logElement.innerHTML += '<br><strong>Session Metrics:</strong><br>';
+        logElement.innerHTML +=
+          'Total Fixation Duration: ' +
+          data.metrics.totalFixationDuration.toFixed(2) +
+          ' ms<br>';
+        logElement.innerHTML +=
+          'Average Fixation Duration: ' +
+          data.metrics.averageFixationDuration.toFixed(2) +
+          ' ms<br>';
+        logElement.innerHTML += 'Fixation Count: ' + data.metrics.fixationCount + '<br>';
+        logElement.innerHTML +=
+          'Total Saccade Amplitude: ' +
+          data.metrics.totalSaccadeAmplitude.toFixed(2) +
+          ' px<br>';
+        logElement.innerHTML +=
+          'Average Saccade Amplitude: ' +
+          data.metrics.averageSaccadeAmplitude.toFixed(2) +
+          ' px<br>';
+        logElement.innerHTML +=
+          'Estimated Cognitive Load: ' + data.cognitiveLoad + '<br>';
+      });
+  }
     
   </script>
 
@@ -117,4 +161,62 @@
   z-index: 600; 
 }
 
+/* Calibration Point Styles */
+.Calibration {
+    width: 30px;
+    height: 30px;
+    background-color: red;
+    opacity: 0.2;
+    border-radius: 50%;
+    position: absolute;
+    display: none;
+    z-index: 999;
+  }
+
+  /* Positioning of calibration points */
+  #Pt1 {
+    top: 10%;
+    left: 10%;
+  }
+  #Pt2 {
+    top: 10%;
+    left: 50%;
+  }
+  #Pt3 {
+    top: 10%;
+    left: 90%;
+  }
+  #Pt4 {
+    top: 50%;
+    left: 10%;
+  }
+  #Pt5 {
+    top: 50%;
+    left: 50%;
+  }
+  #Pt6 {
+    top: 50%;
+    left: 90%;
+  }
+  #Pt7 {
+    top: 90%;
+    left: 10%;
+  }
+  #Pt8 {
+    top: 90%;
+    left: 50%;
+  }
+  #Pt9 {
+    top: 90%;
+    left: 90%;
+  }
+
+  /* Canvas Style */
+  #plotting_canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 999;
+  }
+  
 </style>

@@ -1,8 +1,11 @@
 // npm start
 // The red dot represents where the system believes you are looking on the screen at that moment.
-const express = require('express');
-const bodyParser = require('body-parser');
-const fs = require('fs');
+
+const express = require('express'); // web server
+const bodyParser = require('body-parser'); // for parsing JSON
+const fs = require('fs'); // for writing to a file
+const path = require('path');
+const axios = require('axios'); // for making requests to the backend
 const app = express();
 
 const PORT = 3000;
@@ -44,16 +47,42 @@ app.post('/pause', (req, res) => {
 
 // Need to add webgazer.resume()
 
-
-app.post('/end', (req, res) => {
+app.post('/end', async (req, res) => {
   if (sessionData[sessionId]) {
-    fs.writeFileSync(`session-${sessionId}.txt`, JSON.stringify(sessionData[sessionId]));
-    res.send({ message: 'Session ended and data saved', sessionId: sessionId });
+    // Save the raw data
+    const dataFilePath = path.join(__dirname, 'data');
+    const sessionJsonPath = path.join(dataFilePath, `session-${sessionId}-raw.json`);
+    fs.writeFileSync(rawDataPath, JSON.stringify(sessionData[sessionId]));
+
+    try {
+      // Send data to the C# backend service
+      const response = await axios.post('http://localhost:5000/EyeData/process', sessionData[sessionId]);
+
+      // Get the processed data
+      const processedData = response.data;
+
+      // HEY !!!!!!!!!!!!
+      // SAVE THE PROCESS DATA ON C# BACKEND NOT HERE
+      fs.writeFileSync(`session-${sessionId}-processed.json`, JSON.stringify(processedData));
+
+      res.send({
+        message: 'Session ended and data processed',
+        sessionId: sessionId,
+        metrics: processedData.metrics,
+        cognitiveLoad: processedData.cognitiveLoad,
+        fixations: processedData.fixations,
+        saccades: processedData.saccades,
+      });
+    } catch (error) {
+      console.error('Error processing data:', error.message);
+      res.status(500).send('Error processing data');
+    }
   } else {
-    res.status(400).send('No session data to save');
+    res.status(400).send('No session data to process');
   }
   sessionId = 0;
 });
+
 
 
 app.listen(PORT, () => {
