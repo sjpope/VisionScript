@@ -5,7 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VisionScript Baby!!!</title>
   <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
   <script src="js/precision_calculation.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+
   <script src="js/calibration.js"></script>
   <script src="js/main.js"></script>
 </head>
@@ -19,6 +23,7 @@
   <div id="controlPanel">
     <button onclick="startSession()">Start Session</button>
     <button onclick="pauseSession()">Pause Session</button>
+    <button onclick="resumeSession()">Resume Session</button>
     <button onclick="endSession()">End Session</button>
     <button onclick="Restart()">Restart Calibration</button>
     <span id="Accuracy">Not yet Calibrated</span>
@@ -61,11 +66,23 @@
             body: JSON.stringify({ data: { x: data.x, y: data.y, timestamp } })
           });
         }
-      }).begin();
+      }).begin().then(() => {
+  repositionVideoFeed();
+});
       webgazer.showPredictionPoints(true);
       isTracking = true;
     }
-    
+
+    webgazer.params.videoViewerWidth = 160; // Adjust width if needed
+webgazer.params.videoViewerHeight = 120; // Adjust height if needed
+
+// Function to move the video feed
+function repositionVideoFeed() {
+  const videoContainer = document.getElementById('webgazerVideoContainer');
+  videoContainer.style.top = 'auto';
+  videoContainer.style.left = '0px';
+  videoContainer.style.bottom = '0px';
+}
     function startSession() {
       fetch('/start', { method: 'POST' })
         .then(response => response.json())
@@ -85,6 +102,15 @@
           webgazer.pause();
         });
     }
+
+    function resumeSession() {
+  fetch('/resume', { method: 'POST' })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data.message);
+      webgazer.resume();
+    });
+}
 
     function endSession() {
     fetch('/end', { method: 'POST' })
@@ -126,6 +152,18 @@
 </html>
 
 <style>
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+}
+
+h1 {
+  text-align: center;
+  margin: 20px;
+}
+
   #log {
     position: fixed;
     bottom: 10px;
@@ -141,10 +179,19 @@
   }
 
   #controlPanel {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  z-index: 1500; 
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1500;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 10px;
+    border-radius: 5px;
+}
+/* Ensure the video feed has a lower z-index */
+#webgazerVideoContainer {
+  z-index: 1000 !important;
+  border: 1px solid #ccc;
+  background-color: #000;
 }
 
 #webgazerVideoFeed {
@@ -161,62 +208,36 @@
   z-index: 600; 
 }
 
-/* Calibration Point Styles */
 .Calibration {
     width: 30px;
     height: 30px;
     background-color: red;
     opacity: 0.2;
     border-radius: 50%;
-    position: absolute;
+    position: fixed;
     display: none;
-    z-index: 999;
-  }
+    z-index: 2000 !important;
+    cursor: pointer; /* Make it clear they are clickable */
+}
 
-  /* Positioning of calibration points */
-  #Pt1 {
-    top: 10%;
-    left: 10%;
-  }
-  #Pt2 {
-    top: 10%;
-    left: 50%;
-  }
-  #Pt3 {
-    top: 10%;
-    left: 90%;
-  }
-  #Pt4 {
-    top: 50%;
-    left: 10%;
-  }
-  #Pt5 {
-    top: 50%;
-    left: 50%;
-  }
-  #Pt6 {
-    top: 50%;
-    left: 90%;
-  }
-  #Pt7 {
-    top: 90%;
-    left: 10%;
-  }
-  #Pt8 {
-    top: 90%;
-    left: 50%;
-  }
-  #Pt9 {
-    top: 90%;
-    left: 90%;
-  }
+  /* Position calibration points dynamically based on screen size */
+#Pt1 { top: 10%; left: 10%; }
+#Pt2 { top: 10%; left: 50%; }
+#Pt3 { top: 10%; left: 90%; }
+#Pt4 { top: 50%; left: 10%; }
+#Pt5 { top: 50%; left: 50%; display: block; } /* Ensure middle point is always visible for calibration */
+#Pt6 { top: 50%; left: 90%; }
+#Pt7 { top: 90%; left: 10%; }
+#Pt8 { top: 90%; left: 50%; }
+#Pt9 { top: 90%; left: 90%; }
 
-  /* Canvas Style */
-  #plotting_canvas {
-    position: absolute;
+#plotting_canvas {
+    position: fixed;
     top: 0;
     left: 0;
-    z-index: 999;
-  }
-  
+    width: 100%;
+    height: 100%;
+    z-index: 500; /* Ensure it doesn't overlap interactive elements */
+}
+
 </style>
