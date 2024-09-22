@@ -17,7 +17,7 @@ namespace DataProcessor.Services
             double threshold = 50; // Pixels
             double minFixation = 100; // ms
 
-            double start = sessionData[0].TimeStamp, end = 0;
+            double start = sessionData[0].Timestamp, end = 0;
 
             /*
             {"x":463.4866564651469,"y":168.66635159193666,"timestamp":100820.19999998808},
@@ -27,59 +27,57 @@ namespace DataProcessor.Services
             {
                 // Calculate dispersion of the window
                 var dispersion = CalculateDispersion(window);
+                window.Add(point);
 
-                    if (dispersion < threshold){
-                        // it's a potential fixation
-                        end = point.TimeStamp;
+                if (dispersion < threshold)
+                {
+                    // it's a potential fixation
+                    end = point.Timestamp;
 
+                }
+                else
+                {
+                    if (window.Count >= minFixation)
+                    {
+                        fixations.Add(new Fixation()
+                        {
+                            StartTime = start,
+                            EndTime = end,
+                            Duration = end - start,
+                            X = window.Average(p => p.GazeX),
+                            Y = window.Average(p => p.GazeY)
+                        });
                     }
-                    else{
-                        if (window.Count >= minFixation){
-                            Fixation fx = new Fixation()
-                            {
-                                StartTime = start,
-                                EndTime = end,
-                                Duration = end - start,
-                                X = window.Average(p => p.GazeX),
-                                Y = window.Average(p => p.GazeY)
-                            };
-                            fixations.Add(fx);
-                        }
 
-                        // start new window/group of points here
-                        window.Clear();
-                    }
-                    // IF: dispersion is low (set some default threshold), 
-                        // it's a potential fixation
+                    // start new window/group of points here
+                    window.Clear();
+                    window.Add(point);
+                    start = point.Timestamp;
+                    end = point.Timestamp;
+                }
 
-                    // ELSE: If dispersion is too high (set some default threshold), 
-                        // check if duration (of window) is >= minFixation
+            }
 
-                            // Record fixation
-                            
-            
-                
-            // Handle the last cluster of points
+
+            // Handle the last cluster of points if the time range was long enough
             if (window.Count > 0)
             {
-                var duration = endTime.Value - startTime.Value;
-                if (duration >= minimumFixationDuration)
-                {
-                    var fixation = new Fixation
+                double duration = end - start;
+
+                if (duration >= minFixation)
+                    fixations.Add(new Fixation()
                     {
-                        StartTime = startTime.Value,
-                        EndTime = endTime.Value,
+                        StartTime = start,
+                        EndTime = end,
                         Duration = duration,
-                        X = window.Average(p => p.x),
-                        Y = window.Average(p => p.y)
-                    };
-                    fixations.Add(fixation);
-                }
+                        X = window.Average(p => p.GazeX),
+                        Y = window.Average(p => p.GazeY)
+                    });
             }
 
             // CALCULATE SACCADES BETWEEN FIXATIONS
             // foreach (var fixation in fixations)
-                // Create new Saccade() and add to saccades list
+            // Create new Saccade() and add to saccades list
 
 
             // CALCULATE METRICS HERE
