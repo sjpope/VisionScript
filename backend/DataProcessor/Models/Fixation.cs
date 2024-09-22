@@ -37,7 +37,6 @@ namespace DataProcessor.Models
         public List<Fixation> Fixations { get; set; } = new List<Fixation>();
         public List<Saccade> Saccades { get; set; } = new List<Saccade>();
         public Metrics Metrics { get; set; } = new Metrics();
-
-        public string CognitiveLoad { get; set; }
+        public string CognitiveLoad { get; set; } = "Unknown";
     }
 }
