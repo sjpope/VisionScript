@@ -1,4 +1,5 @@
 using DataProcessor.Models;
+// curl -X POST "http://localhost:5080/Core/process" -H "Content-Type: application/json" -d @"C:\Users\sampo\OneDrive\Documents\TXST\IND. STUDY\Repos\VisionScript\session-2.json"
 
 namespace DataProcessor.Services
 {
@@ -14,8 +15,8 @@ namespace DataProcessor.Services
             List<Fixation> fixations = new List<Fixation>();
             List<Saccade> saccades = new List<Saccade>();
 
-            double dispersionThreshold = 75; // Pixels -> Maximum dispersion/distance between points to consider a fixation
-            double minFixation = 100; // ms
+            double dispersionThreshold = 100; // Pixels -> Maximum dispersion/distance between points to consider a fixation
+            double minFixation = 350; // ms -> Minimum duration to consider a fixation
 
             double start = sessionData[0].Timestamp, end = 0;
 
@@ -23,6 +24,7 @@ namespace DataProcessor.Services
             {"x":463.4866564651469,"y":168.66635159193666,"timestamp":100820.19999998808},
             {"x":371.64037621748116,"y":159.9519054142047,"timestamp":100967.30000001192}]
             */
+            int iter = 1;
             foreach (var point in sessionData)
             {
                 // Calculate dispersion of the window
@@ -31,12 +33,13 @@ namespace DataProcessor.Services
 
                 if (dispersion < dispersionThreshold)
                 {
+                    // Console.WriteLine("Point " + iter + " is a potential fixation within fixation window" + fixations.Count + "\n");
                     // it's a potential fixation
                     end = point.Timestamp;
                 }
                 else
                 {
-                    if (window.Count >= minFixation)
+                    if (end - start >= minFixation)
                     {
                         fixations.Add(new Fixation()
                         {
@@ -55,6 +58,7 @@ namespace DataProcessor.Services
                     end = point.Timestamp;
                 }
 
+                iter++;
             }
 
             Console.WriteLine("\nFixation Count: " + fixations.Count);
@@ -120,6 +124,7 @@ namespace DataProcessor.Services
             res.Metrics = metrics;
             res.CognitiveLoad = cognitiveLoad;
 
+            Console.WriteLine("Cognitive Load: " + cognitiveLoad);
             return res;
         }
 
