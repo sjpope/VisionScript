@@ -77,37 +77,78 @@ namespace DataProcessor.Services
                     });
             }
 
-            // CALCULATE SACCADES BETWEEN FIXATIONS
-            // foreach (var fixation in fixations)
-            // Create new Saccade() and add to saccades list
+            // Calculate Saccades between consecutive fixations
+            for (int i = 1; i < fixations.Count; i++)
+            {
+                var prevFix = fixations[i - 1];
+                var currFix = fixations[i];
 
+                // Calculate saccade between fixations
+                double saccadeDistance = Math.Sqrt(Math.Pow(currFix.X - prevFix.X, 2) + Math.Pow(currFix.Y - prevFix.Y, 2));
+                double saccadeDuration = currFix.StartTime - prevFix.EndTime;
 
-            // CALCULATE METRICS HERE
-            // metrics.TotalFixationDuration = fixations.Sum(f => f.Duration);
-            // metrics.AverageFixationDuration = fixations.Average(f => f.Duration);
-            // metrics.FixationCount = fixations.Count;
-            // metrics.TotalSaccadeAmplitude = saccades.Sum(s => s.Amplitude);
-            // metrics.AverageSaccadeAmplitude = saccades.Average(s => s.Amplitude);
+                saccades.Add(new Saccade()
+                {
+                    StartTime = prevFix.EndTime,
+                    EndTime = currFix.StartTime,
+                    Amplitude = saccadeDistance,
+                    Duration = saccadeDuration
+                });
+            }
 
+            // Calculate Metrics
+            Metrics metrics = new Metrics();
+            metrics.TotalFixationDuration = fixations.Sum(f => f.Duration);
+            metrics.AverageFixationDuration = fixations.Average(f => f.Duration);
+            metrics.FixationCount = fixations.Count;
+            metrics.TotalSaccadeAmplitude = saccades.Sum(s => s.Amplitude);
+            metrics.AverageSaccadeAmplitude = saccades.Average(s => s.Amplitude);
 
-            // res.Fixations = fixations;
-            // res.Saccades = saccades;
-            // res.Metrics = metrics;
-            // res.CognitiveLoad = EstimateCognitiveLoad(metrics);
+            // Estimate cognitive load based on metrics
+            string cognitiveLoad = EstimateCognitiveLoad(metrics);
 
+            // Prepare the ProcessResult to return
+            res.Fixations = fixations;
+            res.Saccades = saccades;
+            res.Metrics = metrics;
+            res.CognitiveLoad = cognitiveLoad;
 
-            return new ProcessResult();
+            return res;
         }
 
+        // Function to calculate dispersion of gaze points in the current window
         private double CalculateDispersion(List<EyeData> points)
         {
-            // Calculate the dispersion of the window
-            // TO-DO: Implement dispersion calculation
-            return 0;
+            if (points.Count == 0)
+                return 0;
+
+            double maxX = points.Max(p => p.GazeX);
+            double minX = points.Min(p => p.GazeX);
+            double maxY = points.Max(p => p.GazeY);
+            double minY = points.Min(p => p.GazeY);
+
+            // Calculate the Euclidean distance between the farthest points
+            return Math.Sqrt(Math.Pow(maxX - minX, 2) + Math.Pow(maxY - minY, 2));
         }
 
-        // private string EstimateCognitiveLoad(Metrics metrics)
+        // Function to estimate cognitive load based on metrics
+        private string EstimateCognitiveLoad(Metrics metrics)
+        {
+            // Cognitive load can be estimated using fixation and saccade metrics
+            if (metrics.AverageFixationDuration > 300 && metrics.AverageSaccadeAmplitude < 20)
+            {
+                return "High";
+            }
+            else if (metrics.AverageFixationDuration > 200 && metrics.AverageSaccadeAmplitude < 40)
+            {
+                return "Moderate";
+            }
+            else
+            {
+                return "Low";
+            }
+        }
 
-        // private List<Fixation> ExtractFixations(List<EyeDataPoint> points)   
+         
     }
 }

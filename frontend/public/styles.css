@@ -50,9 +50,9 @@ h1 {
     padding: 10px;
     margin-bottom: 20px;
     margin-top: 10px; /* Additional margin for spacing */
-  font-size: 12px;
-  position: relative; /* Ensure it doesn't overlap header */
-  z-index: 1001; /* Same layer as control panel */
+    font-size: 12px;
+    position: relative; /* Ensure it doesn't overlap header */
+    z-index: 1001; /* Same layer as control panel */
   }
 
   #controlPanel {
@@ -66,8 +66,8 @@ h1 {
     border-radius: 5px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     width: 80%; /* Control width for better layout control */
-  position: relative;
-  z-index: 1001; /* Just above the header layer */
+    position: relative;
+    z-index: 1001; /* Just above the header layer */
   }
   
 /* Ensure the video feed has a lower z-index */
@@ -79,7 +79,7 @@ h1 {
 #webgazerVideoContainer {
     position: fixed;
     bottom: 20px;
-  right: 20px;
+    right: 20px;
     width: 160px; /* Width of video */
     height: 120px; /* Height of video */
     cursor: move; /* Indicate it's movable */

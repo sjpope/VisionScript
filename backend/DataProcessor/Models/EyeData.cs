@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace DataProcessor.Models
 {
     public class EyeData
@@ -5,9 +7,14 @@ namespace DataProcessor.Models
         public long Id { get; set; }
         public long UserId { get; set; }
         public long SessionId { get; set; }
+
+        [JsonPropertyName("timestamp")]
         public double Timestamp { get; set; } // Is Time Elapsed (ms)
+        [JsonPropertyName("x")]
         public double GazeX { get; set; }
+        [JsonPropertyName("y")]
         public double GazeY { get; set; }
+        
         public double PupilDiameter { get; set; }
 
         // From js, data could appear like so:
