@@ -2,6 +2,11 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 using DataProcessor.Models;
 using DataProcessor.Services;
+using System.Text.Json.Serialization;
+using System.Net.Http.Json;
+using Newtonsoft.Json;
+
+// curl -X POST "http://localhost:5080/Core/process" -H "Content-Type: application/json" -d @"C:\Users\sampo\OneDrive\Documents\TXST\IND. STUDY\Repos\VisionScript\session-2.json"
 
 namespace DataProcessor.Controllers
 {
@@ -26,6 +31,8 @@ namespace DataProcessor.Controllers
                 return BadRequest("Session data is empty.");
 
             Console.WriteLine("Oh brother...");
+            Console.WriteLine(sessionData.Count + " items in session data.");
+            Console.WriteLine(JsonConvert.SerializeObject(sessionData.First()));
 
             try
             {

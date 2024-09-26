@@ -14,9 +14,7 @@ namespace DataProcessor.Services
             List<Fixation> fixations = new List<Fixation>();
             List<Saccade> saccades = new List<Saccade>();
 
-
-            
-            double threshold = 50; // Pixels
+            double dispersionThreshold = 75; // Pixels -> Maximum dispersion/distance between points to consider a fixation
             double minFixation = 100; // ms
 
             double start = sessionData[0].Timestamp, end = 0;
@@ -31,11 +29,10 @@ namespace DataProcessor.Services
                 var dispersion = CalculateDispersion(window);
                 window.Add(point);
 
-                if (dispersion < threshold)
+                if (dispersion < dispersionThreshold)
                 {
                     // it's a potential fixation
                     end = point.Timestamp;
-
                 }
                 else
                 {
@@ -60,6 +57,7 @@ namespace DataProcessor.Services
 
             }
 
+            Console.WriteLine("\nFixation Count: " + fixations.Count);
 
             // Handle the last cluster of points if the time range was long enough
             if (window.Count > 0)
@@ -80,21 +78,30 @@ namespace DataProcessor.Services
             // Calculate Saccades between consecutive fixations
             for (int i = 1; i < fixations.Count; i++)
             {
-                var prevFix = fixations[i - 1];
-                var currFix = fixations[i];
-
-                // Calculate saccade between fixations
-                double saccadeDistance = Math.Sqrt(Math.Pow(currFix.X - prevFix.X, 2) + Math.Pow(currFix.Y - prevFix.Y, 2));
-                double saccadeDuration = currFix.StartTime - prevFix.EndTime;
-
-                saccades.Add(new Saccade()
+                try
                 {
-                    StartTime = prevFix.EndTime,
-                    EndTime = currFix.StartTime,
-                    Amplitude = saccadeDistance,
-                    Duration = saccadeDuration
-                });
+                    var prevFix = fixations[i - 1];
+                    var currFix = fixations[i];
+    
+                    // Calculate saccade between fixations
+                    double saccadeDistance = Math.Sqrt(Math.Pow(currFix.X - prevFix.X, 2) + Math.Pow(currFix.Y - prevFix.Y, 2));
+                    double saccadeDuration = currFix.StartTime - prevFix.EndTime;
+    
+                    saccades.Add(new Saccade()
+                    {
+                        StartTime = prevFix.EndTime,
+                        EndTime = currFix.StartTime,
+                        Amplitude = saccadeDistance,
+                        Duration = saccadeDuration
+                    });
+                }
+                catch (System.Exception ex)
+                {
+                    Console.WriteLine("Error occurred while calculating saccades:" + ex.Message);  
+                }
             }
+
+            Console.WriteLine("Saccade Count: " + saccades.Count);  
 
             // Calculate Metrics
             Metrics metrics = new Metrics();
@@ -122,13 +129,23 @@ namespace DataProcessor.Services
             if (points.Count == 0)
                 return 0;
 
-            double maxX = points.Max(p => p.GazeX);
-            double minX = points.Min(p => p.GazeX);
-            double maxY = points.Max(p => p.GazeY);
-            double minY = points.Min(p => p.GazeY);
-
-            // Calculate the Euclidean distance between the farthest points
-            return Math.Sqrt(Math.Pow(maxX - minX, 2) + Math.Pow(maxY - minY, 2));
+            try
+            {
+                double maxX = points.Max(p => p.GazeX);
+                double minX = points.Min(p => p.GazeX);
+                double maxY = points.Max(p => p.GazeY);
+                double minY = points.Min(p => p.GazeY);
+    
+                double dispersion = Math.Sqrt(Math.Pow(maxX - minX, 2) + Math.Pow(maxY - minY, 2));
+                // Calculate the Euclidean distance between the farthest points
+                return dispersion;
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine("Error occurred while calculating dispersion:" + ex.Message);
+                return 0;
+            
+            }
         }
 
         // Function to estimate cognitive load based on metrics
