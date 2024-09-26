@@ -59,7 +59,7 @@ app.post('/end', async (req, res) => {
 
     try {
       // Send data to the C# backend service
-      const response = await axios.post('http://localhost:5000/EyeData/process', sessionData[sessionId]);
+      const response = await axios.post('http://localhost:5080/EyeData/process', sessionData[sessionId]);
 
       // Get the processed data
       const processedData = response.data;
@@ -86,7 +86,18 @@ app.post('/end', async (req, res) => {
   sessionId = 0;
 });
 
-
+// Add this to your server.js to handle requests for session results.
+app.get('/results/:sessionId', (req, res) => {
+  const { sessionId } = req.params;
+  const processedDataPath = path.join(__dirname, `session-${sessionId}-processed.json`);
+  
+  if (fs.existsSync(processedDataPath)) {
+    const processedData = JSON.parse(fs.readFileSync(processedDataPath, 'utf-8'));
+    res.json(processedData);
+  } else {
+    res.status(404).send('Session results not found.');
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`I think the server is running on http://localhost:${PORT}`);
