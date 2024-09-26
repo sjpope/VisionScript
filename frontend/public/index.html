@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,12 +14,24 @@
   <script src="js/calibration.js"></script>
   <script src="js/main.js"></script>
 </head>
+
 <body>
   <h1>VisionScript Baby!!!</h1>
 
   <div id="log" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-top: 20px;">
   </div>
 
+  <div id="sessionResults">
+    <h2>Session Results</h2>
+    <div id="results">
+      <p>Total Fixation Duration: <span id="totalFixationDuration"></span></p>
+      <p>Average Fixation Duration: <span id="averageFixationDuration"></span></p>
+      <p>Fixation Count: <span id="fixationCount"></span></p>
+      <p>Total Saccade Amplitude: <span id="totalSaccadeAmplitude"></span></p>
+      <p>Average Saccade Amplitude: <span id="averageSaccadeAmplitude"></span></p>
+      <p>Cognitive Load: <span id="cognitiveLoad"></span></p>
+    </div>
+  </div>
 
   <div id="controlPanel">
     <button onclick="startSession()">Start Session</button>
@@ -67,22 +80,22 @@
           });
         }
       }).begin().then(() => {
-  repositionVideoFeed();
-});
+        repositionVideoFeed();
+      });
       webgazer.showPredictionPoints(true);
       isTracking = true;
     }
 
-    webgazer.params.videoViewerWidth = 160; 
-webgazer.params.videoViewerHeight = 120; 
+    webgazer.params.videoViewerWidth = 160;
+    webgazer.params.videoViewerHeight = 120;
 
 
-function repositionVideoFeed() {
-  const videoContainer = document.getElementById('webgazerVideoContainer');
-  videoContainer.style.top = 'auto';
-  videoContainer.style.left = '0px';
-  videoContainer.style.bottom = '0px';
-}
+    function repositionVideoFeed() {
+      const videoContainer = document.getElementById('webgazerVideoContainer');
+      videoContainer.style.top = 'auto';
+      videoContainer.style.left = '0px';
+      videoContainer.style.bottom = '0px';
+    }
     function startSession() {
       fetch('/start', { method: 'POST' })
         .then(response => response.json())
@@ -104,65 +117,55 @@ function repositionVideoFeed() {
     }
 
     function resumeSession() {
-  fetch('/resume', { method: 'POST' })
-    .then(response => response.json())
-    .then(data => {
-      console.log(data.message);
-      webgazer.resume();
-    });
-}
+      fetch('/resume', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data.message);
+          webgazer.resume();
+        });
+    }
 
     function endSession() {
-    fetch('/end', { method: 'POST' })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data.message);
-        console.log('Metrics:', data.metrics);
-        webgazer.end(); // Completely stop the regression model
-        isTracking = false;
+      fetch('/end', { method: 'POST' })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data.message);
+          console.log('Metrics:', data.metrics);
+          webgazer.end(); // Completely stop the regression model
+          isTracking = false;
 
-        // Display the metrics
-        const logElement = document.getElementById('log');
-        logElement.innerHTML += '<br><strong>Session Metrics:</strong><br>';
-        logElement.innerHTML +=
-          'Total Fixation Duration: ' +
-          data.metrics.totalFixationDuration.toFixed(2) +
-          ' ms<br>';
-        logElement.innerHTML +=
-          'Average Fixation Duration: ' +
-          data.metrics.averageFixationDuration.toFixed(2) +
-          ' ms<br>';
-        logElement.innerHTML += 'Fixation Count: ' + data.metrics.fixationCount + '<br>';
-        logElement.innerHTML +=
-          'Total Saccade Amplitude: ' +
-          data.metrics.totalSaccadeAmplitude.toFixed(2) +
-          ' px<br>';
-        logElement.innerHTML +=
-          'Average Saccade Amplitude: ' +
-          data.metrics.averageSaccadeAmplitude.toFixed(2) +
-          ' px<br>';
-        logElement.innerHTML +=
-          'Estimated Cognitive Load: ' + data.cognitiveLoad + '<br>';
-      });
-  }
-    
+          // Update the HTML with the session results
+          document.getElementById('totalFixationDuration').innerText = data.metrics.totalFixationDuration.toFixed(2) + ' ms';
+          document.getElementById('averageFixationDuration').innerText = data.metrics.averageFixationDuration.toFixed(2) + ' ms';
+          document.getElementById('fixationCount').innerText = data.metrics.fixationCount;
+          document.getElementById('totalSaccadeAmplitude').innerText = data.metrics.totalSaccadeAmplitude.toFixed(2) + ' px';
+          document.getElementById('averageSaccadeAmplitude').innerText = data.metrics.averageSaccadeAmplitude.toFixed(2) + ' px';
+          document.getElementById('cognitiveLoad').innerText = data.cognitiveLoad;
+
+          // Optionally, save the processed data somewhere on the client side for later use
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+
   </script>
 
 </body>
+
 </html>
 
 <style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+  }
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f4f4f4;
-}
-
-h1 {
-  text-align: center;
-  margin: 20px;
-}
+  h1 {
+    text-align: center;
+    margin: 20px;
+  }
 
   #log {
     position: fixed;
@@ -186,29 +189,30 @@ h1 {
     background: rgba(255, 255, 255, 0.8);
     padding: 10px;
     border-radius: 5px;
-}
-/* Ensure the video feed has a lower z-index */
-#webgazerVideoContainer {
-  z-index: 1000 !important;
-  border: 1px solid #ccc;
-  background-color: #000;
-}
+  }
 
-#webgazerVideoFeed {
-  position: fixed;
-  bottom: 10px;
-  left: 10px;
-  z-index: 500; 
-}
+  /* Ensure the video feed has a lower z-index */
+  #webgazerVideoContainer {
+    z-index: 1000 !important;
+    border: 1px solid #ccc;
+    background-color: #000;
+  }
 
-#webgazerCanvas {
-  position: fixed;
-  bottom: 10px;
-  left: 10px;
-  z-index: 600; 
-}
+  #webgazerVideoFeed {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    z-index: 500;
+  }
 
-.Calibration {
+  #webgazerCanvas {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    z-index: 600;
+  }
+
+  .Calibration {
     width: 30px;
     height: 30px;
     background-color: red;
@@ -217,27 +221,65 @@ h1 {
     position: fixed;
     display: none;
     z-index: 2000 !important;
-    cursor: pointer; /* Make it clear they are clickable */
-}
+    cursor: pointer;
+    /* Make it clear they are clickable */
+  }
 
   /* Position calibration points dynamically based on screen size */
-#Pt1 { top: 10%; left: 10%; }
-#Pt2 { top: 10%; left: 50%; }
-#Pt3 { top: 10%; left: 90%; }
-#Pt4 { top: 50%; left: 10%; }
-#Pt5 { top: 50%; left: 50%; display: block; } /* Ensure middle point is always visible for calibration */
-#Pt6 { top: 50%; left: 90%; }
-#Pt7 { top: 90%; left: 10%; }
-#Pt8 { top: 90%; left: 50%; }
-#Pt9 { top: 90%; left: 90%; }
+  #Pt1 {
+    top: 10%;
+    left: 10%;
+  }
 
-#plotting_canvas {
+  #Pt2 {
+    top: 10%;
+    left: 50%;
+  }
+
+  #Pt3 {
+    top: 10%;
+    left: 90%;
+  }
+
+  #Pt4 {
+    top: 50%;
+    left: 10%;
+  }
+
+  #Pt5 {
+    top: 50%;
+    left: 50%;
+    display: block;
+  }
+
+  /* Ensure middle point is always visible for calibration */
+  #Pt6 {
+    top: 50%;
+    left: 90%;
+  }
+
+  #Pt7 {
+    top: 90%;
+    left: 10%;
+  }
+
+  #Pt8 {
+    top: 90%;
+    left: 50%;
+  }
+
+  #Pt9 {
+    top: 90%;
+    left: 90%;
+  }
+
+  #plotting_canvas {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 500; /* Ensure it doesn't overlap interactive elements */
-}
-
+    z-index: 500;
+    /* Ensure it doesn't overlap interactive elements */
+  }
 </style>
