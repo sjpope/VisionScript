@@ -11,7 +11,9 @@ function ClearCanvas() {
     i.style.display = 'none';
   });
   const canvas = document.getElementById('plotting_canvas');
-  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  if (canvas) {
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  }
 }
 
 /**
@@ -62,11 +64,14 @@ function calPointClick(node) {
     document.getElementById('Pt5').style.display = 'block';
 
     const canvas = document.getElementById('plotting_canvas');
-    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    if (canvas) {
+      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    }
 
     calcAccuracy();
   }
 }
+
 
 /**
  * Show calibration points.
@@ -99,5 +104,37 @@ function Restart() {
   document.getElementById('Accuracy').innerHTML = '<a>Not yet Calibrated</a>';
   webgazer.clearData();
   ClearCalibration();
-  PopUpInstruction();
+  helpModalShow();
+}
+
+/**
+ * Start the calibration process.
+ */
+function startCalibration() {
+  ClearCanvas();
+  helpModalShow(); // Show calibration instructions
+
+  // Add click event listeners to calibration points
+  document.querySelectorAll('.Calibration').forEach((i) => {
+    i.addEventListener('click', () => {
+      calPointClick(i);
+    });
+  });
+}
+
+
+/**
+ * Show calibration instructions.
+ */
+function helpModalShow() {
+  swal({
+    title: 'Calibration',
+    text: 'Please click on each of the 9 points on the screen. You must click on each point 5 times until it turns yellow. This will calibrate your eye movements.',
+    buttons: {
+      cancel: false,
+      confirm: true,
+    },
+  }).then(() => {
+    ShowCalibrationPoint();
+  });
 }

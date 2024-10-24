@@ -13,6 +13,7 @@
 
   <script src="js/calibration.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/main.js"></script>
 </head>
 
 <body>
@@ -56,9 +57,10 @@
   </div>
 
   <!-- Canvas for plotting -->
-  <canvas id="plotting_canvas"></canvas>
+  <canvas id="plotting_canvas" width="1280" height="720" style="position: fixed; top: 0; left: 0;"></canvas>
 
   <script>
+    
     let isTracking = false;
 
     function initializeWebGazer() {
@@ -81,14 +83,13 @@
         }
       }).begin().then(() => {
         repositionVideoFeed();
+        webgazer.showVideoPreview(true).showPredictionPoints(true);
       });
-      webgazer.showPredictionPoints(true);
       isTracking = true;
     }
 
     webgazer.params.videoViewerWidth = 160;
     webgazer.params.videoViewerHeight = 120;
-
 
     function repositionVideoFeed() {
       const videoContainer = document.getElementById('webgazerVideoContainer');
@@ -96,6 +97,7 @@
       videoContainer.style.left = '0px';
       videoContainer.style.bottom = '0px';
     }
+
     function startSession() {
       fetch('/start', { method: 'POST' })
         .then(response => response.json())
@@ -103,9 +105,22 @@
           console.log(data.message);
           if (!isTracking) {
             initializeWebGazer();
+            startCalibration();
           }
         });
     }
+
+    // function startCalibration() {
+    //   ClearCanvas();
+    //   helpModalShow(); // Show calibration instructions
+
+    //   document.querySelectorAll('.Calibration').forEach((i) => {
+    //     i.addEventListener('click', () => {
+    //       calPointClick(i);
+    //     });
+    //   });
+    // }
+
 
     function pauseSession() {
       fetch('/pause', { method: 'POST' })
