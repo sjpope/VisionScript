@@ -118,6 +118,9 @@ function store_points_variable() {
         });
       });
     });
+
+    // Show controlPanel after calibration is complete
+    document.getElementById('controlPanel').style.display = 'block';
   }
   
   /**
