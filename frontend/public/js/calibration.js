@@ -111,6 +111,9 @@ function Restart() {
  * Start the calibration process.
  */
 function startCalibration() {
+  // Hide controlPanel during calibration
+  document.getElementById('controlPanel').style.display = 'none';
+  
   ClearCanvas();
   helpModalShow(); // Show calibration instructions
 

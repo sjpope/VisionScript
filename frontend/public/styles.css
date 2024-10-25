@@ -5,7 +5,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh; /* Ensures the body takes full viewport height */
+  height: 100vh;
+  /* Ensures the body takes full viewport height */
 }
 
 /* h1 {
@@ -15,19 +16,25 @@ body {
 
 h1 {
   width: 100%;
-  background: #333;  /* Dark background for the header */
-  color: #fff;       /* White text color */
+  background: #333;
+  /* Dark background for the header */
+  color: #fff;
+  /* White text color */
   text-align: center;
   padding: 20px 0;
   margin: 20px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);  /* Subtle shadow for a lifted effect */
-  position: fixed;  /* Fixed at the top */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow for a lifted effect */
+  position: fixed;
+  /* Fixed at the top */
   top: 0;
   left: 0;
   right: 0;
-  z-index: 2000;    /* Ensures it stays on top of other content */
+  z-index: 2000;
+  /* Ensures it stays on top of other content */
 }
-  /* #log {
+
+/* #log {
     position: fixed;
     bottom: 10px;
     right: 10px;
@@ -41,86 +48,161 @@ h1 {
     z-index: 1000;
   } */
 
-  #log {
-    max-width: 80%;
-    height: 200px;
-    overflow-y: auto;
-    background: #fff;
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-bottom: 20px;
-    margin-top: 10px; /* Additional margin for spacing */
-    font-size: 12px;
-    position: relative; /* Ensure it doesn't overlap header */
-    z-index: 1001; /* Same layer as control panel */
-  }
+#log {
+  max-width: 80%;
+  height: 200px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 20px;
+  margin-top: 10px;
+  /* Additional margin for spacing */
+  font-size: 12px;
+  position: relative;
+  /* Ensure it doesn't overlap header */
+  z-index: 1001;
+  /* Same layer as control panel */
+}
 
-  #controlPanel {
-    display: flex;
-    justify-content: center;
-    margin-top: 100px;
-    gap: 10px;
-    margin-bottom: 20px;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    width: 80%; /* Control width for better layout control */
-    position: relative;
-    z-index: 1001; /* Just above the header layer */
-  }
-  
+#controlPanel {
+  display: flex;
+  justify-content: center;
+  margin-top: 100px;
+  gap: 10px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  /* Control width for better layout control */
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1001;
+  /* Just above the header layer */
+}
+
+#taskSelection {
+  margin-bottom: 10px;
+}
+
+#taskSelection label {
+  margin-right: 10px;
+}
+
+#sessionResults {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1500;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px;
+  border-radius: 5px;
+  display: none;
+  /* Initially hidden */
+  max-width: 300px;
+}
+
 /* Ensure the video feed has a lower z-index */
 /* #webgazerVideoContainer {
   z-index: 1000 !important;
   border: 1px solid #ccc;
   background-color: #000;
 } */
+
 #webgazerVideoContainer {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 160px; /* Width of video */
-    height: 120px; /* Height of video */
-    cursor: move; /* Indicate it's movable */
-    z-index: 500; /* Above the canvas, below logs and controls */
-  }
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 160px;
+  /* Width of video */
+  height: 120px;
+  /* Height of video */
+  cursor: move;
+  /* Indicate it's movable */
+  z-index: 500;
+  /* Above the canvas, below logs and controls */
+
+  border: 1px solid #ccc;
+  background-color: #000;
+}
+
 #webgazerVideoFeed {
   position: fixed;
   bottom: 10px;
   left: 10px;
-  z-index: 500; 
+  z-index: 500;
 }
 
 #webgazerCanvas {
   position: fixed;
   bottom: 10px;
   left: 10px;
-  z-index: 600; 
+  z-index: 600;
 }
 
 .Calibration {
-    width: 30px;
-    height: 30px;
-    background-color: red;
-    opacity: 0.2;
-    border-radius: 50%;
-    position: fixed;
-    display: none;
-    z-index: 2000 !important;
-    cursor: pointer; /* Make it clear they are clickable */
+  width: 30px;
+  height: 30px;
+  background-color: red;
+  opacity: 0.2;
+  border-radius: 50%;
+  position: fixed;
+  display: none;
+  z-index: 2000 !important;
+  cursor: pointer;
+  /* Make it clear they are clickable */
 }
 
-  /* Position calibration points dynamically based on screen size */
-#Pt1 { top: 10%; left: 10%; }
-#Pt2 { top: 10%; left: 50%; }
-#Pt3 { top: 10%; left: 90%; }
-#Pt4 { top: 50%; left: 10%; }
-#Pt5 { top: 50%; left: 50%; display: block; } /* Ensure middle point is always visible for calibration */
-#Pt6 { top: 50%; left: 90%; }
-#Pt7 { top: 90%; left: 10%; }
-#Pt8 { top: 90%; left: 50%; }
-#Pt9 { top: 90%; left: 90%; }
+/* Position calibration points dynamically based on screen size */
+#Pt1 {
+  top: 10%;
+  left: 10%;
+}
+
+#Pt2 {
+  top: 10%;
+  left: 50%;
+}
+
+#Pt3 {
+  top: 10%;
+  left: 90%;
+}
+
+#Pt4 {
+  top: 50%;
+  left: 10%;
+}
+
+#Pt5 {
+  top: 50%;
+  left: 50%;
+  display: block;
+}
+
+/* Ensure middle point is always visible for calibration */
+#Pt6 {
+  top: 50%;
+  left: 90%;
+}
+
+#Pt7 {
+  top: 90%;
+  left: 10%;
+}
+
+#Pt8 {
+  top: 90%;
+  left: 50%;
+}
+
+#Pt9 {
+  top: 90%;
+  left: 90%;
+}
 
 /* #plotting_canvas {
     position: fixed;
@@ -131,11 +213,14 @@ h1 {
     z-index: 500; //Ensure it doesn't overlap interactive elements 
 } 
 */
-#plotting_canvas {
-    width: 100%;
-    height: calc(100vh - 140px); /* Adjust height based on other elements */
-    position: relative;
-    background-color: rgba(0,0,0,0.2);
-    z-index: -1; /* Behind all interactive elements but in view */
-  }
 
+#plotting_canvas {
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: calc(100vh - 140px);
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: -1;
+}

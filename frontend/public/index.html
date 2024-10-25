@@ -5,26 +5,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VisionScript Baby!!!</title>
-  <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
-  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-  <script src="js/precision_calculation.js"></script>
-
+  
   <link rel="stylesheet" href="styles.css">
 
-  <script src="js/calibration.js"></script>
-  <script src="js/main.js"></script>
-  <script src="js/main.js"></script>
+  
 </head>
 
 <body>
-  <h1>VisionScript Baby!!!</h1>
+  <h1>VisionScript!!!</h1>
 
-  <div id="log" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-top: 20px;">
+  <div id="controlPanel">
+    <div id="taskSelection">
+      <label><input type="radio" name="task" value="development" checked> Development</label>
+      <label><input type="radio" name="task" value="code_review"> Code Review/Comprehension</label>
+      <label><input type="radio" name="task" value="debugging"> Debugging</label>
+    </div>
+    <button onclick="startSession()">Start Session</button>
+    <button onclick="pauseSession()" disabled>Pause Session</button>
+    <button onclick="resumeSession()" disabled>Resume Session</button>
+    <button onclick="endSession()" disabled>End Session</button>
+    <button onclick="Restart()">Restart Calibration</button>
+    <span id="Accuracy">Not yet Calibrated</span>
   </div>
 
   <div id="sessionResults">
     <h2>Session Results</h2>
     <div id="results">
+      <p>Task: <span id="selectedTask"></span></p>
       <p>Total Fixation Duration: <span id="totalFixationDuration"></span></p>
       <p>Average Fixation Duration: <span id="averageFixationDuration"></span></p>
       <p>Fixation Count: <span id="fixationCount"></span></p>
@@ -34,14 +41,8 @@
     </div>
   </div>
 
-  <div id="controlPanel">
-    <button onclick="startSession()">Start Session</button>
-    <button onclick="pauseSession()">Pause Session</button>
-    <button onclick="resumeSession()">Resume Session</button>
-    <button onclick="endSession()">End Session</button>
-    <button onclick="Restart()">Restart Calibration</button>
-    <span id="Accuracy">Not yet Calibrated</span>
-  </div>
+  <div id="log" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-top: 20px;"></div>
+  
 
   <!-- Calibration Points -->
   <div id="CalibrationDiv">
@@ -99,28 +100,36 @@
     }
 
     function startSession() {
-      fetch('/start', { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-          console.log(data.message);
-          if (!isTracking) {
-            initializeWebGazer();
-            startCalibration();
-          }
-        });
+
+      const taskRadios = document.getElementsByName('task');
+  let selectedTask;
+  for (const radio of taskRadios) {
+    if (radio.checked) {
+      selectedTask = radio.value;
+      break;
     }
+  }
+      fetch('/start', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ task: selectedTask })
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data.message);
+      if (!isTracking) {
+        initializeWebGazer();
+        startCalibration();
+      }
 
-    // function startCalibration() {
-    //   ClearCanvas();
-    //   helpModalShow(); // Show calibration instructions
-
-    //   document.querySelectorAll('.Calibration').forEach((i) => {
-    //     i.addEventListener('click', () => {
-    //       calPointClick(i);
-    //     });
-    //   });
-    // }
-
+      // Update UI
+      document.querySelector('button[onclick="startSession()"]').disabled = true;
+      document.querySelector('button[onclick="pauseSession()"]').disabled = false;
+      document.querySelector('button[onclick="endSession()"]').disabled = false;
+    });
+    }
 
     function pauseSession() {
       fetch('/pause', { method: 'POST' })
@@ -128,6 +137,11 @@
         .then(data => {
           console.log(data.message);
           webgazer.pause();
+          // Update UI
+      document.querySelector('button[onclick="pauseSession()"]').disabled = true;
+      document.querySelector('button[onclick="resumeSession()"]').disabled = false;
+
+          
         });
     }
 
@@ -137,6 +151,10 @@
         .then(data => {
           console.log(data.message);
           webgazer.resume();
+
+          // Update UI
+      document.querySelector('button[onclick="pauseSession()"]').disabled = false;
+      document.querySelector('button[onclick="resumeSession()"]').disabled = true;
         });
     }
 
@@ -157,6 +175,14 @@
           document.getElementById('averageSaccadeAmplitude').innerText = data.metrics.averageSaccadeAmplitude.toFixed(2) + ' px';
           document.getElementById('cognitiveLoad').innerText = data.cognitiveLoad;
 
+          // Display session results
+      document.getElementById('sessionResults').style.display = 'block';
+
+// Update UI
+document.querySelector('button[onclick="startSession()"]').disabled = false;
+document.querySelector('button[onclick="pauseSession()"]').disabled = true;
+document.querySelector('button[onclick="resumeSession()"]').disabled = true;
+document.querySelector('button[onclick="endSession()"]').disabled = true;
           // Optionally, save the processed data somewhere on the client side for later use
         })
         .catch(error => {
@@ -165,6 +191,12 @@
     }
 
   </script>
+  
+  <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <script src="js/precision_calculation.js"></script>
+  <script src="js/calibration.js"></script>
+  <script src="js/main.js"></script>
 
 </body>
 

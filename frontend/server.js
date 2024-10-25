@@ -27,18 +27,19 @@ app.use(bodyParser.json());
 let sessionData = [];
 let sessionId = 0;
 
-app.post('/start', (req, res) => {
-  sessionId++;
-  sessionData[sessionId] = [];
-  res.send({ message: 'Session started', sessionId: sessionId });
-});
-
 app.post('/data', (req, res) => {
   const data = req.body.data;
   if (data && sessionId !== 0) {
     sessionData[sessionId].push(data);
   }
   res.status(200).send('Data received');
+});
+
+app.post('/start', (req, res) => {
+  const task = req.body.task;
+  sessionId++;
+  sessionData[sessionId] = { data: [], task: task };
+  res.send({ message: 'Session started', sessionId: sessionId });
 });
 
 app.post('/pause', (req, res) => {
@@ -52,6 +53,7 @@ app.post('/resume', (req, res) => {
 
 app.post('/end', async (req, res) => {
   if (sessionData[sessionId]) {
+    const task = sessionData[sessionId].task;
     // Save the raw data
     const dataFilePath = path.join(__dirname, 'data');
     const sessionJsonPath = path.join(dataFilePath, `session-${sessionId}-raw.json`);
@@ -71,6 +73,7 @@ app.post('/end', async (req, res) => {
       res.send({
         message: 'Session ended and data processed',
         sessionId: sessionId,
+        task: task,
         metrics: processedData.metrics,
         cognitiveLoad: processedData.cognitiveLoad,
         fixations: processedData.fixations,
