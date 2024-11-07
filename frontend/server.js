@@ -57,7 +57,7 @@ app.post('/end', async (req, res) => {
     // Save the raw data
     const dataFilePath = path.join(__dirname, 'data');
     const sessionJsonPath = path.join(dataFilePath, `session-${sessionId}-raw.json`);
-    fs.writeFileSync(rawDataPath, JSON.stringify(sessionData[sessionId]));
+    fs.writeFileSync(dataFilePath, JSON.stringify(sessionData[sessionId]));
 
     try {
       // Send data to the C# backend service

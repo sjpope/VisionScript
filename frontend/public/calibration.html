@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Calibration</title>
+  <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="js/calibration.js"></script>
+</head>
+<body>
+  <h1>Calibration</h1>
+
+  <!-- Calibration Points -->
+  <div id="CalibrationDiv">
+    <button class="Calibration" id="Pt1"></button>
+    <button class="Calibration" id="Pt2"></button>
+    <button class="Calibration" id="Pt3"></button>
+    <button class="Calibration" id="Pt4"></button>
+    <button class="Calibration" id="Pt5"></button>
+    <button class="Calibration" id="Pt6"></button>
+    <button class="Calibration" id="Pt7"></button>
+    <button class="Calibration" id="Pt8"></button>
+    <button class="Calibration" id="Pt9"></button>
+  </div>
+
+  <!-- Canvas for plotting -->
+  <canvas id="plotting_canvas" width="1280" height="720" style="position: fixed; top: 0; left: 0;"></canvas>
+
+
+  <!-- Proceed Button -->
+  <div id="proceedButtonDiv">
+    <button onclick="proceedToMain()" disabled>Proceed to Application</button>
+  </div>
+
+  <script>
+    // Start calibration when the page loads
+    window.onload = function() {
+      webgazer.begin().then(() => {
+        startCalibration();
+      });
+    };
+
+    function proceedToMain() {
+      webgazer.end();
+      window.location.href = 'index.html';
+    }
+
+    // Enable the proceed button after calibration
+    function enableProceedButton() {
+      document.querySelector('#proceedButtonDiv button').disabled = false;
+    }
+  </script>
+</body>
+</html>
