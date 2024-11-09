@@ -21,6 +21,10 @@
     <div id="proceedButtonDiv"><button onclick="proceedToMain()" disabled>Proceed to Main Application</button></div>
   </div>
 
+  <div id="accuracyDisplay" style="position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 5px; display: none;">
+    <p>Calibration Accuracy: <span id="Accuracy">Not calculated yet</span></p>
+  </div>
+
   <!-- Calibration Points -->
   <div id="CalibrationDiv">
     <button class="Calibration" id="Pt1"></button>
@@ -43,7 +47,13 @@
     // Start calibration when the page loads
     window.onload = function() {
       webgazer.begin().then(() => {
+
+        repositionVideoFeed();
+        webgazer.showVideoPreview(true).showPredictionPoints(true);
+        makeVideoFeedDraggable();
+
         startCalibration();
+        enableProceedButton();
       });
     };
 
@@ -56,6 +66,31 @@
     function enableProceedButton() {
       document.querySelector('#proceedButtonDiv button').disabled = false;
     }
+
+    webgazer.params.videoViewerWidth = 320;
+    webgazer.params.videoViewerHeight = 240;
+
+    function repositionVideoFeed() {
+      const videoContainer = document.getElementById('webgazerVideoContainer');
+      videoContainer.style.top = 'auto';
+      videoContainer.style.left = '0px';
+      videoContainer.style.bottom = '0px';
+    }
   </script>
 </body>
 </html>
+<style>
+  #accuracyDisplay {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 2001;
+    /* Above other content but below modals/popups */
+    display: none;
+  }
+</style>

@@ -49,28 +49,30 @@ app.post('/pause', (req, res) => {
 });
 
 app.post('/resume', (req, res) => {
-  // Placeholder to handle session resume
+
   res.send({ message: 'Session resumed', sessionId: sessionId });
 });
 
 app.post('/end', async (req, res) => {
   if (sessionData[sessionId]) {
     const task = sessionData[sessionId].task;
+
     // Save the raw data
-    const dataFilePath = path.join(__dirname, 'data');
-    const sessionJsonPath = path.join(dataFilePath, `session-${sessionId}-raw.json`);
-    fs.writeFileSync(dataFilePath, JSON.stringify(sessionData[sessionId]));
+    // const dataFilePath = path.join(__dirname, 'data');
+    // const sessionJsonPath = path.join(dataFilePath, `session-${sessionId}-raw.json`);
+    // fs.writeFileSync(dataFilePath, JSON.stringify(sessionData[sessionId]));
 
     try {
       // Send data to the C# backend service
-      const response = await axios.post('http://localhost:5080/EyeData/process', sessionData[sessionId]);
+      console.log('\nPRIOR TO POST CALL:\n\n' + sessionData[sessionId].data);
+      const response = await axios.post('http://localhost:5080/Core/process', sessionData[sessionId].data);
 
       // Get the processed data
       const processedData = response.data;
 
       // HEY !!!!!!!!!!!!
       // SAVE THE PROCESS DATA ON C# BACKEND NOT HERE
-      fs.writeFileSync(`session-${sessionId}-processed.json`, JSON.stringify(processedData));
+      // fs.writeFileSync(`session-${sessionId}-processed.json`, JSON.stringify(processedData));
 
       res.send({
         message: 'Session ended and data processed',
@@ -81,17 +83,22 @@ app.post('/end', async (req, res) => {
         fixations: processedData.fixations,
         saccades: processedData.saccades,
       });
-    } catch (error) {
+
+    } 
+    catch (error) 
+    {
       console.error('Error processing data:', error.message);
       res.status(500).send('Error processing data');
     }
-  } else {
+  } 
+  else 
+  {
+    console.log('No session data to process\n');
     res.status(400).send('No session data to process');
   }
   sessionId = 0;
 });
 
-// Add this to your server.js to handle requests for session results.
 app.get('/results/:sessionId', (req, res) => {
   const { sessionId } = req.params;
   const processedDataPath = path.join(__dirname, `session-${sessionId}-processed.json`);

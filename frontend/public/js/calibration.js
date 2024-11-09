@@ -91,7 +91,7 @@ function calPointClick(node) {
     if (canvas) {
       canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
     }
-
+    
     calcAccuracy();
   }
 }
