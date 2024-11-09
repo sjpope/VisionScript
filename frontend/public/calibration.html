@@ -1,3 +1,4 @@
+<!--calibration.html-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,11 +6,20 @@
   <title>Calibration</title>
   <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
   <link rel="stylesheet" href="styles.css">
+
   <script src="js/calibration.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/precision_calculation.js"></script>
 </head>
 <body>
   <h1>Calibration</h1>
+
+  <div id="controlPanel">
+    <!-- Proceed Button -->
+    <div id="proceedButtonDiv"><button onclick="proceedToMain()" disabled>Proceed to Main Application</button></div>
+  </div>
 
   <!-- Calibration Points -->
   <div id="CalibrationDiv">
@@ -28,11 +38,7 @@
   <canvas id="plotting_canvas" width="1280" height="720" style="position: fixed; top: 0; left: 0;"></canvas>
 
 
-  <!-- Proceed Button -->
-  <div id="proceedButtonDiv">
-    <button onclick="proceedToMain()" disabled>Proceed to Application</button>
-  </div>
-
+  
   <script>
     // Start calibration when the page loads
     window.onload = function() {
