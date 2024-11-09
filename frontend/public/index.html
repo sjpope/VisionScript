@@ -59,7 +59,9 @@
     let isTracking = false;
 
     function initializeWebGazer() {
+
       webgazer.setGazeListener(function (data, timestamp) {
+
         if (data) {
           const logElement = document.getElementById('log');
           const message = `X: ${data.x.toFixed(2)}, Y: ${data.y.toFixed(2)}, Timestamp: ${timestamp.toFixed(2)}`;
@@ -72,6 +74,7 @@
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
+              
             },
             body: JSON.stringify({ data: { x: data.x, y: data.y, timestamp } })
           });
@@ -81,6 +84,7 @@
         webgazer.showVideoPreview(true).showPredictionPoints(true);
         makeVideoFeedDraggable();
       });
+
       isTracking = true;
     }
 

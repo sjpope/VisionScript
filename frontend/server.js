@@ -29,12 +29,19 @@ let sessionData = [];
 let sessionId = 0;
 
 app.post('/data', (req, res) => {
-  
-  const data = req.body.data;
+
+  /*
+  const { data } = req.body;
+  fs.appendFileSync('eyeData.txt', JSON.stringify(data) + '\n');
+  */
+
+  const {data} = req.body;
   if (data && sessionId !== 0) {
-    sessionData[sessionId].data.push(data);
+    sessionData[sessionId].push(data);
   }
+
   res.status(200).send('Data received');
+
 });
 
 app.post('/start', (req, res) => {
@@ -49,11 +56,13 @@ app.post('/pause', (req, res) => {
 });
 
 app.post('/resume', (req, res) => {
-
   res.send({ message: 'Session resumed', sessionId: sessionId });
 });
 
 app.post('/end', async (req, res) => {
+
+  
+
   if (sessionData[sessionId]) {
     const task = sessionData[sessionId].task;
 
