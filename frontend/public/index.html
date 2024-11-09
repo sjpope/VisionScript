@@ -8,7 +8,7 @@
   <title>VisionScript Baby!!!</title>
   
   <link rel="stylesheet" href="styles.css">
-  
+
   <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
@@ -79,6 +79,7 @@
       }).begin().then(() => {
         repositionVideoFeed();
         webgazer.showVideoPreview(true).showPredictionPoints(true);
+        makeVideoFeedDraggable();
       });
       isTracking = true;
     }
@@ -115,7 +116,6 @@
       console.log(data.message);
       if (!isTracking) {
         initializeWebGazer();
-        startCalibration();
       }
 
       // Update UI
