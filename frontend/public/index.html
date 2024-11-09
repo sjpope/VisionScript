@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,6 +8,13 @@
   <title>VisionScript Baby!!!</title>
   
   <link rel="stylesheet" href="styles.css">
+  
+  <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+  <script src="js/precision_calculation.js"></script>
+  <script src="js/calibration.js"></script>
+  <script src="js/main.js"></script>
 
   
 </head>
@@ -24,7 +32,7 @@
     <button onclick="pauseSession()" disabled>Pause Session</button>
     <button onclick="resumeSession()" disabled>Resume Session</button>
     <button onclick="endSession()" disabled>End Session</button>
-    <button onclick="Restart()">Restart Calibration</button>
+    <button onclick="Restart()">Calibration</button>
     <span id="Accuracy">Not yet Calibrated</span>
   </div>
 
@@ -178,12 +186,7 @@ document.querySelector('button[onclick="endSession()"]').disabled = true;
 
   </script>
   
-  <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
-  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-  <script src="js/precision_calculation.js"></script>
-  <script src="js/calibration.js"></script>
-  <script src="js/main.js"></script>
-
+  
 </body>
 
 </html>

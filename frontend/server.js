@@ -1,3 +1,4 @@
+// server.js
 // npm start
 // The red dot represents where the system believes you are looking on the screen at that moment.
 
@@ -28,9 +29,10 @@ let sessionData = [];
 let sessionId = 0;
 
 app.post('/data', (req, res) => {
+  
   const data = req.body.data;
   if (data && sessionId !== 0) {
-    sessionData[sessionId].push(data);
+    sessionData[sessionId].data.push(data);
   }
   res.status(200).send('Data received');
 });
