@@ -3,7 +3,7 @@ window.onload = function () {
   webgazer.setRegression('ridge').setGazeListener(function (data, clock) {
   });
 
-  setupCanvas();
+  // setupCanvas();
   makeVideoFeedDraggable(); 
 };
 
@@ -48,14 +48,3 @@ function makeVideoFeedDraggable() {
   };
 }
 
-// function startCalibration() {
-//   ClearCanvas();
-//   helpModalShow(); // Show calibration instructions
-
-//   // Add click event listeners to calibration points
-//   document.querySelectorAll('.Calibration').forEach((i) => {
-//     i.addEventListener('click', () => {
-//       calPointClick(i);
-//     });
-//   });
-// }
