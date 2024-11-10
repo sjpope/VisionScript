@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VisionScript Baby!!!</title>
-  
+
   <link rel="stylesheet" href="styles.css">
 
   <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
@@ -16,7 +16,7 @@
   <script src="js/calibration.js"></script>
   <script src="js/main.js"></script>
 
-  
+
 </head>
 
 <body>
@@ -49,14 +49,12 @@
     </div>
   </div>
 
-  <div id="log" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-top: 20px;"></div>
-  
+  <div id="log" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-top: 20px;">
+  </div>
 
-
-  
   <script>
-    
     let isTracking = false;
+    let currentSessionId = null;
 
     function initializeWebGazer() {
 
@@ -69,14 +67,13 @@
           logElement.innerHTML += message + '<br>';
           logElement.scrollTop = logElement.scrollHeight;
 
-          // Send data to the server for further processing
           fetch('/data', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
-              
+
             },
-            body: JSON.stringify({ data: { x: data.x, y: data.y, timestamp } })
+            body: JSON.stringify({ sessionId: currentSessionId, data: { x: data.x, y: data.y, timestamp: data.timestamp } })
           });
         }
       }).begin().then(() => {
@@ -101,32 +98,36 @@
     function startSession() {
 
       const taskRadios = document.getElementsByName('task');
-  let selectedTask;
-  for (const radio of taskRadios) {
-    if (radio.checked) {
-      selectedTask = radio.value;
-      break;
-    }
-  }
-      fetch('/start', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ task: selectedTask })
-  })
-    .then(response => response.json())
-    .then(data => {
-      console.log(data.message);
-      if (!isTracking) {
-        initializeWebGazer();
+      let selectedTask;
+
+      for (const radio of taskRadios) {
+        if (radio.checked) {
+          selectedTask = radio.value;
+          break;
+        }
       }
 
-      // Update UI
-      document.querySelector('button[onclick="startSession()"]').disabled = true;
-      document.querySelector('button[onclick="pauseSession()"]').disabled = false;
-      document.querySelector('button[onclick="endSession()"]').disabled = false;
-    });
+      fetch('/start', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ task: selectedTask })
+      })
+        .then(response => response.json())
+        .then(data => {
+          currentSessionId = data.sessionId;
+          console.log(data.message);
+
+          if (!isTracking) {
+            initializeWebGazer();
+          }
+
+          // Update UI
+          document.querySelector('button[onclick="startSession()"]').disabled = true;
+          document.querySelector('button[onclick="pauseSession()"]').disabled = false;
+          document.querySelector('button[onclick="endSession()"]').disabled = false;
+        });
     }
 
     function pauseSession() {
@@ -136,10 +137,10 @@
           console.log(data.message);
           webgazer.pause();
           // Update UI
-      document.querySelector('button[onclick="pauseSession()"]').disabled = true;
-      document.querySelector('button[onclick="resumeSession()"]').disabled = false;
+          document.querySelector('button[onclick="pauseSession()"]').disabled = true;
+          document.querySelector('button[onclick="resumeSession()"]').disabled = false;
 
-          
+
         });
     }
 
@@ -151,8 +152,8 @@
           webgazer.resume();
 
           // Update UI
-      document.querySelector('button[onclick="pauseSession()"]').disabled = false;
-      document.querySelector('button[onclick="resumeSession()"]').disabled = true;
+          document.querySelector('button[onclick="pauseSession()"]').disabled = false;
+          document.querySelector('button[onclick="resumeSession()"]').disabled = true;
         });
     }
 
@@ -174,13 +175,13 @@
           document.getElementById('cognitiveLoad').innerText = data.cognitiveLoad;
 
           // Display session results
-      document.getElementById('sessionResults').style.display = 'block';
+          document.getElementById('sessionResults').style.display = 'block';
 
-// Update UI
-document.querySelector('button[onclick="startSession()"]').disabled = false;
-document.querySelector('button[onclick="pauseSession()"]').disabled = true;
-document.querySelector('button[onclick="resumeSession()"]').disabled = true;
-document.querySelector('button[onclick="endSession()"]').disabled = true;
+          // Update UI
+          document.querySelector('button[onclick="startSession()"]').disabled = false;
+          document.querySelector('button[onclick="pauseSession()"]').disabled = true;
+          document.querySelector('button[onclick="resumeSession()"]').disabled = true;
+          document.querySelector('button[onclick="endSession()"]').disabled = true;
           // Optionally, save the processed data somewhere on the client side for later use
         })
         .catch(error => {
@@ -189,8 +190,8 @@ document.querySelector('button[onclick="endSession()"]').disabled = true;
     }
 
   </script>
-  
-  
+
+
 </body>
 
 </html>

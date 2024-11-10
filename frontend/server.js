@@ -29,28 +29,29 @@ let sessionData = [];
 let sessionId = 0;
 
 app.post('/data', (req, res) => {
+  try {
+    const { sessionId, data } = req.body;
 
-  const {data} = req.body;
+    if (!sessionData[sessionId] || sessionId === 0) {
+      console.error(`Session ID ${sessionId} does not exist.`);
+      return res.status(400).send('Session does not exist');
+    }
 
-  if (!sessionData[sessionId] || sessionId === 0) 
-  {
-    console.error(`Session ID ${sessionId} does not exist.`);
-    return res.status(400).send('Session does not exist');
+    if (data) {
+      sessionData[sessionId].data.push(data);
+      // console.log(`Data pushed to session ${sessionId}:`, data);
+    }
+
+    res.status(200).send('Data received');
+  } catch (error) {
+    console.error('Error processing data:', error);
+    res.status(500).send('Error processing data');
   }
-
-  if (data) 
-  {
-    sessionData[sessionId].data.push(data);
-    // console.log(`Data pushed to session ${sessionId}:`, data);
-  }
-
-  res.status(200).send('Data received');
-
 });
 
 app.post('/start', (req, res) => {
   const task = req.body.task;
-  sessionId++;
+  sessionId = Date.now().toString();
   sessionData[sessionId] = { data: [], task: task };
   res.send({ message: 'Session started', sessionId: sessionId });
 });
@@ -70,7 +71,9 @@ app.post('/end', async (req, res) => {
 
     try {
       // Send data to the C# backend service
-      console.log('\nPRIOR TO POST CALL:\n\n' + sessionData[sessionId].data);
+      // console.log('\nPRIOR TO POST CALL:\n\n' + sessionData[sessionId].data);
+
+      // Also send task, session ID to backend. Maybe as headers?
       const response = await axios.post('http://localhost:5080/Core/process', sessionData[sessionId].data);
 
       const processedData = response.data;
