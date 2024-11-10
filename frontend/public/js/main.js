@@ -13,7 +13,7 @@ window.onbeforeunload = function () {
 
 function setupCanvas() {
   const canvas = document.getElementById('plotting_canvas');
-  canvas.width = window.innerWidth;
+  canvas.width = window.innerWidth; // Uncaught TypeError: Cannot set properties of null (setting 'width')
   canvas.height = window.innerHeight;
   canvas.style.position = 'fixed';
 }
