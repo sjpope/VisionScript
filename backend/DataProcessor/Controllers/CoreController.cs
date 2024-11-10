@@ -28,34 +28,27 @@ namespace DataProcessor.Controllers
         public IActionResult ProcessData([FromBody] List<EyeData> sessionData)
         {
 
-            // SessionData
-            if (sessionData == null || sessionData.Count == 0)
-                return BadRequest("Session data is empty.");
+            if (sessionData == null || sessionData.Count == 0)  return BadRequest("Session data is empty.");
 
-            Console.WriteLine("Oh brother...");
+            // Console.WriteLine("Oh brother...");
             Console.WriteLine(sessionData.Count + " items in session data.");
             Console.WriteLine(JsonConvert.SerializeObject(sessionData.First()));
-
             
             try
             {
-
                 // {"Id":0,"UserId":0,"SessionId":0,"Timestamp":0.0,"GazeX":500.2759796874867,"GazeY":500.3435009314155,"PupilDiameter":0.0}
                 
-                // Record Raw Session Data
                 // TO-DO: Ensure Session ID and Task ID are included in the request
-
-                string path = Path.Combine(Directory.GetCurrentDirectory(), $"session-data-{DateTime.Now.ToString("yyyyMMddHHmmss")}.json");
+                string path = Path.Combine("C:/Users/sampo/OneDrive/Documents/TXST/IND. STUDY/Repos/VisionScript/backend/data/raw", $"session-data-{DateTime.Now.ToString("yyyyMMddHHmmss")}.json");
                 System.IO.File.WriteAllText(path, JsonConvert.SerializeObject(sessionData));
-
-                
                 
                 ProcessResult result = _dataProcessor.ProcessData(sessionData);
                 return Ok(result);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine("\nAn error occurred while processing the data.\n" + e.Message);
+
                 return BadRequest("An error occurred while processing the data.");
             }
             
