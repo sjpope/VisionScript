@@ -31,15 +31,17 @@ let sessionId = 0;
 app.post('/data', (req, res) => {
 
   const {data} = req.body;
-  
-  if (!sessionData[sessionId]) {
+
+  if (!sessionData[sessionId] || sessionId === 0) 
+  {
     console.error(`Session ID ${sessionId} does not exist.`);
     return res.status(400).send('Session does not exist');
   }
 
-  if (data && sessionId !== 0) {
+  if (data) 
+  {
     sessionData[sessionId].data.push(data);
-    console.log(`Data pushed to session ${sessionId}:`, data);
+    // console.log(`Data pushed to session ${sessionId}:`, data);
   }
 
   res.status(200).send('Data received');
