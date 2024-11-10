@@ -33,7 +33,7 @@
     <button onclick="pauseSession()" disabled>Pause Session</button>
     <button onclick="resumeSession()" disabled>Resume Session</button>
     <button onclick="endSession()" disabled>End Session</button>
-    <button onclick="Restart()">Calibration</button>
+    <button onclick="Restart()">Recalibrate</button>
     <span id="Accuracy">Not yet Calibrated</span>
   </div>
 
@@ -159,7 +159,7 @@
     }
 
     function endSession() {
-      
+
       webgazer.end(); // Completely stop the regression model
       isTracking = false;
 
@@ -318,13 +318,5 @@
     left: 90%;
   }
 
-  #plotting_canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 500;
-    /* Ensure it doesn't overlap interactive elements */
-  }
+  
 </style>

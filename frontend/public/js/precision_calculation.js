@@ -97,7 +97,7 @@ function store_points_variable() {
         const precision_measurement = calculatePrecision(past50);
         const accuracyLabel =
           '<a>Accuracy | ' + precision_measurement + '%</a>';
-        document.getElementById('Accuracy').innerHTML = accuracyLabel;
+        document.getElementById('CalibrationAccuracy').innerHTML = accuracyLabel;
 
         swal({
           title: 'Your accuracy measure is ' + precision_measurement + '%',
@@ -111,10 +111,11 @@ function store_points_variable() {
           if (isConfirm) 
           {
             ClearCanvas();
+            document.getElementById('CalibrationAccuracy').innerHTML = precision_measurement + '%';
           } 
           else 
           {
-            document.getElementById('Accuracy').innerHTML =
+            document.getElementById('CalibrationAccuracy').innerHTML =
               '<a>Not yet Calibrated</a>';
             webgazer.clearData();
             ClearCalibration();

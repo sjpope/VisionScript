@@ -19,11 +19,13 @@
   <div id="controlPanel">
     <!-- Proceed Button -->
     <div id="proceedButtonDiv"><button onclick="proceedToMain()" disabled>Proceed to Main Application</button></div>
+    
+    <div id="accuracyDisplay" style="position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 5px; display: flex;">
+      <p>Calibration Accuracy: <span id="CalibrationAccuracy">Not calculated yet</span></p>
+    </div>
+
   </div>
 
-  <div id="accuracyDisplay" style="position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 5px; display: none;">
-    <p>Calibration Accuracy: <span id="Accuracy">Not calculated yet</span></p>
-  </div>
 
   <!-- Calibration Points -->
   <div id="CalibrationDiv">
@@ -93,4 +95,15 @@
     /* Above other content but below modals/popups */
     display: none;
   }
+
+  #plotting_canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 500;
+    /* Ensure it doesn't overlap interactive elements */
+  }
+
 </style>
