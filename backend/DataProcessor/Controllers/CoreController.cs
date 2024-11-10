@@ -55,7 +55,7 @@ namespace DataProcessor.Controllers
             }
             catch(Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("\nAn error occurred while processing the data.\n" + e.Message);
                 return BadRequest("An error occurred while processing the data.");
             }
             

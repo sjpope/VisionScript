@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VisionScript Baby!!!</title>
+  <title>VisionScript</title>
 
   <link rel="stylesheet" href="styles.css">
 
@@ -20,7 +20,8 @@
 </head>
 
 <body>
-  <h1>VisionScript!!!</h1>
+  <h1>VisionScript</h1>
+  <h2>Cognitive Code Console</h2>
 
   <div id="controlPanel">
     <div id="taskSelection">
@@ -158,12 +159,15 @@
     }
 
     function endSession() {
+      
+      webgazer.end(); // Completely stop the regression model
+      isTracking = false;
+
       fetch('/end', { method: 'POST' })
         .then((response) => response.json())
         .then((data) => {
           console.log(data.message);
           console.log('Metrics:', data.metrics);
-          webgazer.end(); // Completely stop the regression model
           isTracking = false;
 
           // Update the HTML with the session results
