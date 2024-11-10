@@ -34,6 +34,11 @@ namespace DataProcessor.Controllers
             Console.WriteLine(sessionData.Count + " items in session data.");
             Console.WriteLine(JsonConvert.SerializeObject(sessionData.First()));
 
+            // Record Raw Session Data
+            // TO-DO: Ensure Session ID and Task ID are included in the request
+            string path = Path.Combine(Directory.GetCurrentDirectory(), $"session-data-{DateTime.Now}.json");
+            System.IO.File.WriteAllText(path, JsonConvert.SerializeObject(sessionData));
+
             try
             {
                 ProcessResult result = _dataProcessor.ProcessData(sessionData);
