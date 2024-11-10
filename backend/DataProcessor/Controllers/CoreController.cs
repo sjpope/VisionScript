@@ -27,6 +27,8 @@ namespace DataProcessor.Controllers
         [HttpPost("process")]
         public IActionResult ProcessData([FromBody] List<EyeData> sessionData)
         {
+
+            // SessionData
             if (sessionData == null || sessionData.Count == 0)
                 return BadRequest("Session data is empty.");
 
@@ -34,13 +36,20 @@ namespace DataProcessor.Controllers
             Console.WriteLine(sessionData.Count + " items in session data.");
             Console.WriteLine(JsonConvert.SerializeObject(sessionData.First()));
 
-            // Record Raw Session Data
-            // TO-DO: Ensure Session ID and Task ID are included in the request
-            string path = Path.Combine(Directory.GetCurrentDirectory(), $"session-data-{DateTime.Now}.json");
-            System.IO.File.WriteAllText(path, JsonConvert.SerializeObject(sessionData));
-
+            
             try
             {
+
+                // {"Id":0,"UserId":0,"SessionId":0,"Timestamp":0.0,"GazeX":500.2759796874867,"GazeY":500.3435009314155,"PupilDiameter":0.0}
+                
+                // Record Raw Session Data
+                // TO-DO: Ensure Session ID and Task ID are included in the request
+
+                string path = Path.Combine(Directory.GetCurrentDirectory(), $"session-data-{DateTime.Now.ToString("yyyyMMddHHmmss")}.json");
+                System.IO.File.WriteAllText(path, JsonConvert.SerializeObject(sessionData));
+
+                
+                
                 ProcessResult result = _dataProcessor.ProcessData(sessionData);
                 return Ok(result);
             }

@@ -185,7 +185,7 @@
           // Optionally, save the processed data somewhere on the client side for later use
         })
         .catch(error => {
-          console.error('Error:', error);
+          console.error('Error:', error.message); // Error: SyntaxError: Unexpected token 'E', "Error proc"... is not valid JSON
         });
     }
 
