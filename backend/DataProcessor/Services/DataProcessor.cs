@@ -15,8 +15,11 @@ namespace DataProcessor.Services
             List<Fixation> fixations = new List<Fixation>();
             List<Saccade> saccades = new List<Saccade>();
 
-            double dispersionThreshold = 100; // Pixels -> Maximum dispersion/distance between points to consider a fixation
-            double minFixation = 350; // ms -> Minimum duration to consider a fixation
+            // (75 to 100 to 150)
+            double dispersionThreshold = 150; // Pixels -> Maximum dispersion/distance between points to consider a fixation
+            
+            // (350 to 200)
+            double minFixation = 200; // ms -> Minimum duration to consider a fixation
 
             double start = sessionData[0].Timestamp, end = 0;
 
