@@ -57,15 +57,19 @@
   <script>
     let isTracking = false;
     let currentSessionId = null;
+    let currentTaskId = null;
 
     function initializeWebGazer() {
 
       webgazer.setGazeListener(function (data, timestamp) {
 
+        // data && currentTaskId
         if (data) {
           const logElement = document.getElementById('log');
           const message = `X: ${data.x.toFixed(2)}, Y: ${data.y.toFixed(2)}, Timestamp: ${timestamp.toFixed(2)}`;
+
           console.log(message);
+
           logElement.innerHTML += message + '<br>';
           logElement.scrollTop = logElement.scrollHeight;
 

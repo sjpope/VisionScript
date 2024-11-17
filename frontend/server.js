@@ -3,27 +3,16 @@
 // The red dot represents where the system believes you are looking on the screen at that moment.
 
 const express = require('express'); // web server
-const bodyParser = require('body-parser'); // for parsing JSON
-const fs = require('fs'); // for writing to a file
+const bodyParser = require('body-parser');
+const fs = require('fs');
 const path = require('path');
-const axios = require('axios'); // for making requests to the backend
+const axios = require('axios'); 
 const app = express();
 
 const PORT = 3000;
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
-
-// app.get('/', (req, res) => {
-//   res.sendFile(__dirname + '/public/index.html');
-// });
-
-// app.post('/data', (req, res) => {
-//   const { data } = req.body;
-//   fs.appendFileSync('eyeData.txt', JSON.stringify(data) + '\n');
-//   res.status(200).send('Data received');
-// });
-
 
 let sessionData = [];
 let sessionId = 0;
@@ -53,6 +42,8 @@ app.post('/start', (req, res) => {
   const task = req.body.task;
   sessionId = Date.now().toString();
   sessionData[sessionId] = { data: [], task: task };
+
+  console.log(`Session ${sessionId} started for task: ${task}\n`);
   res.send({ message: 'Session started', sessionId: sessionId });
 });
 
@@ -70,11 +61,12 @@ app.post('/end', async (req, res) => {
     const task = sessionData[sessionId].task;
 
     try {
-      // Send data to the C# backend service
-      // console.log('\nPRIOR TO POST CALL:\n\n' + sessionData[sessionId].data);
 
-      // Also send task, session ID to backend. Maybe as headers?
-      const response = await axios.post('http://localhost:5080/Core/process', sessionData[sessionId].data);
+      const response = await axios.post('http://localhost:5080/Core/process', {
+        sessionId: sessionId,
+        task: sessionData[sessionId].task,
+        data: sessionData[sessionId].data
+      });
 
       const processedData = response.data;
 
