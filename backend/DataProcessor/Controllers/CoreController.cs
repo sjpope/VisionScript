@@ -6,8 +6,9 @@ using System.Text.Json.Serialization;
 using System.Net.Http.Json;
 using Newtonsoft.Json;
 
-// curl -X POST "http://localhost:5080/Core/process" -H "Content-Type: application/json" -d @"C:\Users\sampo\OneDrive\Documents\TXST\IND. STUDY\Repos\VisionScript\session-2.json"
-
+// cd OneDrive\Documents\TXST\IND. STUDY\Repos\VisionScript\backend\DataProcessor
+// curl -X POST "http://localhost:5080/Core/process" -H "Content-Type: application/json" -d @"C:\Users\sampo\OneDrive\Documents\TXST\IND. STUDY\Repos\VisionScript\backend\data\raw\session-1731834403808.json"
+// C:\Users\sampo\OneDrive\Documents\TXST\IND. STUDY\Repos\VisionScript\backend\data\raw\session-1731834403808.json
 namespace DataProcessor.Controllers
 {
     
