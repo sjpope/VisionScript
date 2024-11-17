@@ -11,38 +11,34 @@ namespace DataProcessor.Services
             ProcessResult res = new ProcessResult();
 
             List<EyeData> window = new List<EyeData>();
-
             List<Fixation> fixations = new List<Fixation>();
             List<Saccade> saccades = new List<Saccade>();
 
-            // (75 to 100 to 150)
-            double dispersionThreshold = 150; // Pixels -> Maximum dispersion/distance between points to consider a fixation
-            
-            // (350 to 200)
-            double minFixation = 200; // ms -> Minimum duration to consider a fixation
+            // (75 to 100 to 150 to 200 to 250)
+            double dispersionThreshold = 250; // Pixels -> Maximum dispersion/distance between points to consider a fixation
+            // (350 to 200 to 50)
+            double minFixationDuration = 50; // ms -> Minimum duration to consider a fixation
 
             double start = sessionData[0].Timestamp, end = 0;
 
-            /*
-            {"x":463.4866564651469,"y":168.66635159193666,"timestamp":100820.19999998808},
-            {"x":371.64037621748116,"y":159.9519054142047,"timestamp":100967.30000001192}]
-            */
+            
             int iter = 1;
-            foreach (var point in sessionData)
+
+            foreach (EyeData point in sessionData)
             {
                 // Calculate dispersion of the window
-                var dispersion = CalculateDispersion(window);
+                double dispersion = CalculateDispersion(window);
                 window.Add(point);
 
-                if (dispersion < dispersionThreshold)
+                if (dispersion <= dispersionThreshold)
                 {
-                    // Console.WriteLine("Point " + iter + " is a potential fixation within fixation window" + fixations.Count + "\n");
-                    // it's a potential fixation
+                    Console.WriteLine("Point " + iter + " is a potential fixation within fixation window" + fixations.Count + "\n");
+                    
                     end = point.Timestamp;
                 }
                 else
                 {
-                    if (end - start >= minFixation)
+                    if ((end - start) >= minFixationDuration)
                     {
                         fixations.Add(new Fixation()
                         {
@@ -54,7 +50,9 @@ namespace DataProcessor.Services
                         });
                     }
 
-                    // start new window/group of points here
+                    // start new window/group of points
+                    Console.WriteLine($"LOG: Starting new window at point {iter}\n");
+
                     window.Clear();
                     window.Add(point);
                     start = point.Timestamp;
@@ -71,7 +69,7 @@ namespace DataProcessor.Services
             {
                 double duration = end - start;
 
-                if (duration >= minFixation)
+                if (duration >= minFixationDuration)
                     fixations.Add(new Fixation()
                     {
                         StartTime = start,

@@ -30,7 +30,7 @@ namespace DataProcessor.Controllers
 
             if (sessionData == null || sessionData.data.Count == 0)  return BadRequest("Session data is empty.");
 
-            Console.WriteLine($"{sessionData.data.Count} items in session data. Session ID: {sessionData.sessionId} Task ID: {sessionData.task}");
+            Console.WriteLine($"\n\nWE'VE GOT DATA.\n{sessionData.data.Count} items in session data. Session ID: {sessionData.sessionId} Task ID: {sessionData.task}");
             Console.WriteLine(JsonConvert.SerializeObject(sessionData.data.First()));
             
             try
