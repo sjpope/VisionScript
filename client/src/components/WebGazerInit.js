@@ -14,6 +14,7 @@ const WebGazerInit = () => {
     
             if (window.webgazer) {
               webgazer.setGazeListener((data, timestamp) => {
+                
                 if (data) {
                   const logElement = document.getElementById('log');
                   const message = `X: ${data.x.toFixed(2)}, Y: ${data.y.toFixed(2)}, Timestamp: ${timestamp.toFixed(2)}`;

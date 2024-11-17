@@ -49,6 +49,7 @@ const ControlPanel = ({ onSessionChange }) => {
         <span id="Accuracy">Not yet Calibrated</span>
       </div>
     );
+    
   };
   
   export default ControlPanel;
