@@ -4,9 +4,10 @@ namespace DataProcessor.Models
 {
     public class EyeData
     {
-        public long Id { get; set; }
+        // public long Id { get; set; }
         public long UserId { get; set; }
-        public long SessionId { get; set; }
+        
+        // public long SessionId { get; set; }
 
         [JsonPropertyName("timestamp")]
         public double Timestamp { get; set; } // Is Time Elapsed (ms)
