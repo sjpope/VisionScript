@@ -79,7 +79,7 @@
               'Content-Type': 'application/json'
 
             },
-            body: JSON.stringify({ sessionId: currentSessionId, data: { x: data.x, y: data.y, timestamp: data.timestamp } })
+            body: JSON.stringify({ sessionId: currentSessionId, data: { x: data.x, y: data.y, timestamp: timestamp.toFixed(2) } })
           });
         }
       }).begin().then(() => {
