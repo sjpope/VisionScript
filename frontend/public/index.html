@@ -11,6 +11,7 @@
 
   <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script src="js/precision_calculation.js"></script>
   <script src="js/calibration.js"></script>
@@ -39,7 +40,19 @@
 
   <div id="sessionResults">
     <h2>Session Results</h2>
+
+    <select id="sessionSelector">
+      <!-- ????? -->
+       <!-- Should read from backend/data/processed and populate drop down -->
+    </select>
+
+    <div id="resultCharts">
+      <canvas id="fixationDurationChart"></canvas>
+      <canvas id="saccadeAmplitudeChart"></canvas>
+    </div>
+
     <div id="results">
+      <p>Session ID: <span id="sessionId"></span></p>
       <p>Task: <span id="selectedTask"></span></p>
       <p>Total Fixation Duration: <span id="totalFixationDuration"></span></p>
       <p>Average Fixation Duration: <span id="averageFixationDuration"></span></p>
@@ -48,6 +61,7 @@
       <p>Average Saccade Amplitude: <span id="averageSaccadeAmplitude"></span></p>
       <p>Cognitive Load: <span id="cognitiveLoad"></span></p>
     </div>
+
   </div>
 
   <div id="log" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-top: 20px;">
@@ -197,6 +211,20 @@
           console.error('Error:', error.message); // Error: SyntaxError: Unexpected token 'E', "Error proc"... is not valid JSON
         });
     }
+    
+    function loadSessionData(sessionId) {
+      fetch(`/results/${sessionId}`)
+      .then(response => response.json())
+      .then(data => {
+        updateCharts(data);
+        
+      })
+      .catch(error => console.error('Failed to load session data', error));
+    }
+
+    document.getElementById('sessionSelector').addEventListener('change', function() {
+      loadSessionData(this.value);
+    });
 
   </script>
 
