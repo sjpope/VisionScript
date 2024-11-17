@@ -77,7 +77,6 @@
 
       webgazer.setGazeListener(function (data, timestamp) {
 
-        // data && currentTaskId
         if (data) {
           const logElement = document.getElementById('log');
           const message = `X: ${data.x.toFixed(2)}, Y: ${data.y.toFixed(2)}, Timestamp: ${timestamp.toFixed(2)}`;

@@ -62,7 +62,7 @@ app.post('/end', async (req, res) => {
 
     try {
 
-      if (sessionData[sessionId].data.length > 0) { sessionData[sessionId].data.forEach((entry, index) => { console.log(`Entry ${index} Timestamp: ${entry.timestamp}`); }); } 
+      // if (sessionData[sessionId].data.length > 0) { sessionData[sessionId].data.forEach((entry, index) => { console.log(`Entry ${index} Timestamp: ${entry.timestamp}`); }); } 
 
       const response = await axios.post('http://localhost:5080/Core/process', {
         sessionId: sessionId,
