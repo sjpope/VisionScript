@@ -1,23 +1,25 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
+
+import Calibration from './components/Calibration';
+import ControlPanel from './components/ControlPanel';
+import Results from './components/Results';
+import WebGazerInit from './components/WebGazerInit';
+import Log from './components/Log';
 import './App.css';
 
 function App() {
+  const [sessionId, setSessionId] = useState(null);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>VisionScript</h1>
+      <h2>Cognitive Code Console</h2>
+      <WebGazerInit />
+      <ControlPanel onSessionChange={setSessionId} />
+      <Results sessionId={sessionId} />
+      <Log sessionId={sessionId} />
+      <Calibration />
+      
     </div>
   );
 }
