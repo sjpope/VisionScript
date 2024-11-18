@@ -5,6 +5,7 @@ import ControlPanel from './components/ControlPanel';
 import Results from './components/Results';
 import WebGazerInit from './components/WebGazerInit';
 import Log from './components/Log';
+import SessionProvider  from './components/SessionContext';
 import './App.css';
 
 function App() {
@@ -12,6 +13,8 @@ function App() {
 
   return (
     <div className="App">
+    
+    
       <h1>VisionScript</h1>
       <h2>Cognitive Code Console</h2>
       <WebGazerInit />
@@ -20,6 +23,8 @@ function App() {
       <Log sessionId={sessionId} />
       <Calibration />
       
+    
+    
     </div>
   );
 }
