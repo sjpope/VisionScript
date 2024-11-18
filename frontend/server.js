@@ -7,12 +7,14 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios'); 
-const app = express();
+const cors = require('cors');
 
-const PORT = 3000;
+const app = express();
+const PORT = 5000;
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
+app.use(cors()); // {origin: 'http://localhost:3000'}
 
 let sessionData = [];
 let sessionId = 0;
@@ -115,6 +117,11 @@ app.get('/results/:sessionId', (req, res) => {
   } else {
     res.status(404).send('Session results not found.');
   }
+});
+
+app.post('/log', (req, res) => {
+  console.log(req.body);
+  res.status(200).send('Log received');
 });
 
 app.listen(PORT, () => {
