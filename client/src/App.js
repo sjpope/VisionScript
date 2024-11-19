@@ -1,68 +1,55 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 
 import Calibration from './components/Calibration';
 import ControlPanel from './components/ControlPanel';
 import Results from './components/Results';
 import Log from './components/Log';
-import sendLog from './Utility.js';
+import {sendLog} from './components/Utility.js';
+import { SessionContext } from './components/SessionContext';
 import './App.css';
 
 function App() {
   const [sessionId, setSessionId] = useState(null);
   const { isSessionActive, currentSessionId, updateSessionData } = useContext(SessionContext);
-
+  sendLog('Pulling WebGazer...\n\n');
+  
   useEffect(() => {
 
-    const pullWebGazer = () => {
+    const loadWebGazer = async () => {
+      if (!window.webgazer) {
+        const script = document.createElement('script');
+        script.src = 'https://webgazer.cs.brown.edu/webgazer.js';
+        script.async = true;
+        document.head.appendChild(script);
+        await new Promise((resolve, reject) => {
+          script.onload = resolve;
+          script.onerror = reject;
+        });
+      }
+      await window.webgazer.setRegression('ridge').begin();
+      window.webgazer.showVideoPreview(true).showPredictionPoints(true);
+      setupWebGazerListeners();
+    };
 
-      sendLog('Pulling WebGazer...\n\n');
-
-      return new Promise((resolve, reject) => {
-        if (window.webgazer) {
-          resolve(window.webgazer);
-        } else {
-          const script = document.createElement("script");
-          script.src = "https://webgazer.cs.brown.edu/webgazer.js";
-          script.async = true;
-          script.onload = () => resolve(window.webgazer);
-          script.onerror = () => reject("Failed to load webgazer.js");
-          document.head.appendChild(script);
+    const setupWebGazerListeners = () => {
+      window.webgazer.setGazeListener((data, timestamp) => {
+        if (data && isSessionActive) {
+          const logMessage = `X: ${data.x.toFixed(2)}, Y: ${data.y.toFixed(2)}, Timestamp: ${timestamp.toFixed(2)}`;
+          console.log(logMessage); // Also consider using sendLog if you want to keep logs elsewhere
+          fetch(`http://localhost:5000/data`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({sessionId: currentSessionId, data, timestamp})
+          });
         }
       });
     };
 
-    const initializeWebGazer = async () => {
-      try {
-        const webgazer = await pullWebGazer();
-        webgazer.setRegression('ridge')
-          .setGazeListener((data, timestamp) => {
-            if (data && isSessionActive) {
-              const body = JSON.stringify({
-                sessionId: currentSessionId, 
-                data: { x: data.x, y: data.y, timestamp: timestamp.toFixed(2) }
-              });
-              fetch('http://localhost:5000/data', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body
-              });
-            }
-          })
-          .begin()
-          .then(() => {
-            webgazer.showVideoPreview(true).showPredictionPoints(true);
-            makeVideoFeedDraggable();
-          });
-      } catch (error) {
-        console.error("WebGazer loading error:", error);
-      }
-    };
-
-    initializeWebGazer();
+    loadWebGazer();
 
     return () => {
       if (window.webgazer) {
-        window.webgazer.end();
+        // window.webgazer.end();
       }
     };
   }, [isSessionActive, currentSessionId]);
