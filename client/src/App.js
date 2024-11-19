@@ -34,12 +34,20 @@ function App() {
     const setupWebGazerListeners = () => {
       window.webgazer.setGazeListener((data, timestamp) => {
         if (data && isSessionActive) {
+          const logElement = document.getElementById('log');
+          const message = `X: ${data.x.toFixed(2)}, Y: ${data.y.toFixed(2)}, Timestamp: ${timestamp.toFixed(2)}`;
+
+          console.log(message);
+
+          logElement.innerHTML += message + '<br>';
+          logElement.scrollTop = logElement.scrollHeight;
+          
           const logMessage = `X: ${data.x.toFixed(2)}, Y: ${data.y.toFixed(2)}, Timestamp: ${timestamp.toFixed(2)}`;
           console.log(logMessage); // Also consider using sendLog if you want to keep logs elsewhere
           fetch(`http://localhost:5000/data`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({sessionId: currentSessionId, data, timestamp})
+            body: JSON.stringify({ sessionId: currentSessionId, data: { x: data.x, y: data.y, timestamp: timestamp.toFixed(2) } })
           });
         }
       });

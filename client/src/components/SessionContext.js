@@ -1,5 +1,5 @@
 import React, { createContext, useState } from 'react';
-
+import {sendLog} from './Utility.js';
 export const SessionContext = createContext();
 
 export const SessionProvider = ({ children }) => {
@@ -25,6 +25,7 @@ export const SessionProvider = ({ children }) => {
       });
       const data = await response.json();
       if (response.ok) {
+        // sendLog(`Session started for task: ${task}\n\n`);
         setCurrentSessionId(data.sessionId);
         setSessionActive(true);
         setSessionData({ ...sessionData, [data.sessionId]: [] });
