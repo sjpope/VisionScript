@@ -9,9 +9,11 @@ import { SessionContext } from './components/SessionContext';
 import './App.css';
 
 function App() {
-  const [sessionId, setSessionId] = useState(null);
+  const [sessionIdOld, setSessionId] = useState(null);
   const { isSessionActive, currentSessionId, updateSessionData } = useContext(SessionContext);
-  sendLog('Pulling WebGazer...\n\n');
+  
+  let sessionData = [];
+  let sessionId = false;
   
   useEffect(() => {
 
@@ -27,13 +29,16 @@ function App() {
         });
       }
       await window.webgazer.setRegression('ridge').begin();
-      window.webgazer.showVideoPreview(true).showPredictionPoints(true);
+      // repositionVideoFeed();
+      // window.webgazer.showVideoPreview(true).showPredictionPoints(true);
+      // makeVideoFeedDraggable();
       setupWebGazerListeners();
     };
 
     const setupWebGazerListeners = () => {
       window.webgazer.setGazeListener((data, timestamp) => {
-        if (data && isSessionActive) {
+
+        if (data) {
           const logElement = document.getElementById('log');
           const message = `X: ${data.x.toFixed(2)}, Y: ${data.y.toFixed(2)}, Timestamp: ${timestamp.toFixed(2)}`;
 
@@ -41,15 +46,25 @@ function App() {
 
           logElement.innerHTML += message + '<br>';
           logElement.scrollTop = logElement.scrollHeight;
-          
+
           const logMessage = `X: ${data.x.toFixed(2)}, Y: ${data.y.toFixed(2)}, Timestamp: ${timestamp.toFixed(2)}`;
-          console.log(logMessage); // Also consider using sendLog if you want to keep logs elsewhere
-          fetch(`http://localhost:5000/data`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ sessionId: currentSessionId, data: { x: data.x, y: data.y, timestamp: timestamp.toFixed(2) } })
-          });
+          //console.log(logMessage); // Also consider using sendLog if you want to keep logs elsewhere
+          
+          if (sessionId !== false) {
+            sessionData.push({ data, timestamp });
+          }
+
+          // fetch(`http://localhost:5000/data`, {
+          //   method: 'POST',
+          //   headers: {'Content-Type': 'application/json'},
+          //   body: JSON.stringify({ sessionId: currentSessionId, data: { x: data.x, y: data.y, timestamp: timestamp.toFixed(2) } })
+          // });
+
         }
+      }).begin().then(() => {
+        repositionVideoFeed();
+        window.webgazer.showVideoPreview(true).showPredictionPoints(true);
+        makeVideoFeedDraggable();
       });
     };
 
@@ -85,6 +100,13 @@ function App() {
       };
     }
   };
+
+  function repositionVideoFeed() {
+    const videoContainer = document.getElementById('webgazerVideoContainer');
+    videoContainer.style.top = 'auto';
+    videoContainer.style.left = '0px';
+    videoContainer.style.bottom = '0px';
+  }
   
   return (
     <div className="App">

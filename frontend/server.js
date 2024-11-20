@@ -120,8 +120,8 @@ app.get('/results/:sessionId', (req, res) => {
 });
 
 app.post('/log', (req, res) => {
-  const msg = req.body.message;
-  console.log(req.body);
+  var msg = req.body.message;
+  console.log(msg);
   res.status(200).send('Log received');
 });
 
