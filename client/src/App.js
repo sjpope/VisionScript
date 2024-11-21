@@ -13,7 +13,7 @@ function App() {
   const { isSessionActive, currentSessionId, updateSessionData } = useContext(SessionContext);
   
   let sessionData = [];
-  let sessionId = false;
+  let sessionId = 0;
   
   useEffect(() => {
 
@@ -47,10 +47,10 @@ function App() {
           logElement.innerHTML += message + '<br>';
           logElement.scrollTop = logElement.scrollHeight;
 
-          const logMessage = `X: ${data.x.toFixed(2)}, Y: ${data.y.toFixed(2)}, Timestamp: ${timestamp.toFixed(2)}`;
+          //const logMessage = `X: ${data.x.toFixed(2)}, Y: ${data.y.toFixed(2)}, Timestamp: ${timestamp.toFixed(2)}`;
           //console.log(logMessage); // Also consider using sendLog if you want to keep logs elsewhere
           
-          if (sessionId !== false) {
+          if (sessionId !== 0) {
             sessionData.push({ data, timestamp });
           }
 
