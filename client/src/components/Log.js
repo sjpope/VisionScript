@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect, useContext  } from 'react';
 import { SessionContext } from './SessionContext';
-
+import './Log.css';
 const Log = () => {
     const { sessionData, currentSessionId } = useContext(SessionContext);
   
     return (
-      <div id="log" style={{ height: '200px', overflowY: 'scroll', border: '1px solid #ccc', padding: '10px', marginTop: '20px' }}>
+      <div id="log">
         <h2>Log</h2>
         {/* {sessionData[currentSessionId]?.map((entry, index) => (
           <p key={index}>

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace DataProcessor.Models
 {
@@ -34,9 +35,16 @@ namespace DataProcessor.Models
 
     public class ProcessResult
     {
+        [JsonProperty("fixations")]
         public List<Fixation> Fixations { get; set; } = new List<Fixation>();
+
+        [JsonProperty("saccades")]
         public List<Saccade> Saccades { get; set; } = new List<Saccade>();
+
+        [JsonProperty("metrics")]
         public Metrics Metrics { get; set; } = new Metrics();
+
+        [JsonProperty("cognitiveLoad")]
         public string CognitiveLoad { get; set; } = "Unknown";
     }
 }

@@ -1,22 +1,24 @@
-import React, { useEffect, useState, useContext } from 'react';
-
+import React, { useEffect, useRef, useContext } from 'react';
 import Calibration from './components/Calibration';
 import ControlPanel from './components/ControlPanel';
 import Results from './components/Results';
 import Log from './components/Log';
-import {sendLog} from './components/Utility.js';
 import { SessionContext } from './components/SessionContext';
 import './App.css';
 
 function App() {
-  const [sessionIdOld, setSessionId] = useState(null);
-  const { isSessionActive, currentSessionId, updateSessionData } = useContext(SessionContext);
-  
-  let sessionData = [];
-  let sessionId = 0;
-  
-  useEffect(() => {
+  const { isSessionActive, currentSessionId, sessionResults } = useContext(SessionContext);
+  const isSessionActiveRef = useRef(isSessionActive);
+  const currentSessionIdRef = useRef(currentSessionId);
+  const webgazerInitialized = useRef(false);
 
+  // Update refs when session state changes
+  useEffect(() => {
+    isSessionActiveRef.current = isSessionActive;
+    currentSessionIdRef.current = currentSessionId;
+  }, [isSessionActive, currentSessionId]);
+
+  useEffect(() => {
     const loadWebGazer = async () => {
       if (!window.webgazer) {
         const script = document.createElement('script');
@@ -28,99 +30,115 @@ function App() {
           script.onerror = reject;
         });
       }
-      await window.webgazer.setRegression('ridge').begin();
-      // repositionVideoFeed();
-      // window.webgazer.showVideoPreview(true).showPredictionPoints(true);
-      // makeVideoFeedDraggable();
-      setupWebGazerListeners();
-    };
+    
 
-    const setupWebGazerListeners = () => {
-      window.webgazer.setGazeListener((data, timestamp) => {
+    if (!webgazerInitialized.current) {
+      webgazerInitialized.current = true;
+      window.webgazer
+        .setRegression('ridge')
+        .setGazeListener((data, timestamp) => {
+          if (data) {
+            const logElement = document.getElementById('log');
+            const message = `X: ${data.x.toFixed(
+              2
+            )}, Y: ${data.y.toFixed(2)}, Timestamp: ${timestamp.toFixed(2)}`;
 
-        if (data) {
-          const logElement = document.getElementById('log');
-          const message = `X: ${data.x.toFixed(2)}, Y: ${data.y.toFixed(2)}, Timestamp: ${timestamp.toFixed(2)}`;
+            // Send gaze data to the server if a session is active
+            if (isSessionActiveRef.current && currentSessionIdRef.current) {
 
-          console.log(message);
+              if (logElement) {
+                logElement.innerHTML += message + '<br>';
+                logElement.scrollTop = logElement.scrollHeight;
+              }
 
-          logElement.innerHTML += message + '<br>';
-          logElement.scrollTop = logElement.scrollHeight;
-
-          //const logMessage = `X: ${data.x.toFixed(2)}, Y: ${data.y.toFixed(2)}, Timestamp: ${timestamp.toFixed(2)}`;
-          //console.log(logMessage); // Also consider using sendLog if you want to keep logs elsewhere
-          
-          if (sessionId !== 0) {
-            sessionData.push({ data, timestamp });
+              fetch(`http://localhost:5000/data`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  sessionId: currentSessionIdRef.current,
+                  data: { x: data.x, y: data.y, timestamp: timestamp.toFixed(2) },
+                }),
+              });
+            }
           }
+        })
+        .begin()
+        .then(() => {
+          repositionVideoFeed();
+          window.webgazer.showVideoPreview(true).showPredictionPoints(isSessionActiveRef.current);
+          makeVideoFeedDraggable();
+        });
+    }
+  };
 
-          // fetch(`http://localhost:5000/data`, {
-          //   method: 'POST',
-          //   headers: {'Content-Type': 'application/json'},
-          //   body: JSON.stringify({ sessionId: currentSessionId, data: { x: data.x, y: data.y, timestamp: timestamp.toFixed(2) } })
-          // });
-
-        }
-      }).begin().then(() => {
-        repositionVideoFeed();
-        window.webgazer.showVideoPreview(true).showPredictionPoints(true);
-        makeVideoFeedDraggable();
-      });
-    };
 
     loadWebGazer();
 
     return () => {
+      // Clean up webgazer when the component unmounts
       if (window.webgazer) {
-        // window.webgazer.end();
+        try {
+          window.webgazer.end();
+          webgazerInitialized.current = false;
+        } catch (error) {
+          console.warn('Error during webgazer cleanup:', error);
+        }
       }
     };
-  }, [isSessionActive, currentSessionId]);
+  }, []); // Empty dependency array to run once
+
+  useEffect(() => {
+    if (window.webgazer) {
+      window.webgazer.showPredictionPoints(isSessionActive);
+    }
+  }, [isSessionActive]);
 
   const makeVideoFeedDraggable = () => {
-    const videoFeed = document.getElementById('webgazerVideoFeed');
-    if (videoFeed) {
-      videoFeed.style.position = 'fixed';
-      videoFeed.style.cursor = 'move';
-      videoFeed.onmousedown = function (event) {
-        event.preventDefault();
-        let shiftX = event.clientX - videoFeed.getBoundingClientRect().left;
-        let shiftY = event.clientY - videoFeed.getBoundingClientRect().top;
-    
-        function moveAt(pageX, pageY) {
-          videoFeed.style.left = pageX - shiftX + 'px';
-          videoFeed.style.top = pageY - shiftY + 'px';
+    const videoContainer = document.getElementById('webgazerVideoContainer');
+    if (videoContainer) {
+      videoContainer.style.position = 'fixed';
+      videoContainer.style.cursor = 'move';
+
+      let isDragging = false;
+      let offsetX = 0;
+      let offsetY = 0;
+
+      videoContainer.addEventListener('mousedown', function (event) {
+        isDragging = true;
+        offsetX = event.clientX - videoContainer.offsetLeft;
+        offsetY = event.clientY - videoContainer.offsetTop;
+      });
+
+      document.addEventListener('mousemove', function (event) {
+        if (isDragging) {
+          videoContainer.style.left = event.clientX - offsetX + 'px';
+          videoContainer.style.top = event.clientY - offsetY + 'px';
         }
-    
-        document.addEventListener('mousemove', event => moveAt(event.pageX, event.pageY));
-        videoFeed.onmouseup = function () {
-          document.removeEventListener('mousemove', moveAt);
-          videoFeed.onmouseup = null;
-        };
-      };
+      });
+
+      document.addEventListener('mouseup', function () {
+        isDragging = false;
+      });
     }
   };
 
   function repositionVideoFeed() {
     const videoContainer = document.getElementById('webgazerVideoContainer');
-    videoContainer.style.top = 'auto';
-    videoContainer.style.left = '0px';
-    videoContainer.style.bottom = '0px';
+    if (videoContainer) {
+      videoContainer.style.top = 'auto';
+      videoContainer.style.left = '0px';
+      videoContainer.style.bottom = '0px';
+    }
   }
-  
+
   return (
     <div className="App">
-    
-    
       <h1>VisionScript</h1>
       <h2>Cognitive Code Console</h2>
-      <ControlPanel onSessionChange={setSessionId} />
-      <Results sessionId={sessionId} />
-      <Log sessionId={sessionId} />
+      <ControlPanel />
+      {sessionResults && <Results results={sessionResults} />}
+      <Log sessionId={currentSessionId} />
       <Calibration />
-      
-    
-    
     </div>
   );
 }

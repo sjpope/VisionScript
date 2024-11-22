@@ -1,0 +1,28 @@
+#sessionResults {
+    padding: 20px;
+  }
+  
+  #results {
+    margin-bottom: 20px;
+  }
+  
+  #resultCharts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  #resultCharts > div {
+    flex: 1 1 45%;
+  }
+  
+  @media (max-width: 800px) {
+    #resultCharts {
+      flex-direction: column;
+    }
+  
+    #resultCharts > div {
+      flex: 1 1 100%;
+    }
+  }
+  
