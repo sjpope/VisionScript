@@ -36,3 +36,32 @@
     transform: rotate(360deg);
   }
 }
+
+
+#webgazerVideoContainer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  cursor: move;
+
+  /* Above the canvas, below logs and controls */
+  z-index: 1001;
+
+  border: 1px solid #ccc;
+  background-color: #000;
+}
+
+/* #webgazerVideoFeed {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  z-index: 500;
+  cursor: move;
+} */
+
+/* #webgazerCanvas {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  z-index: 600;
+} */

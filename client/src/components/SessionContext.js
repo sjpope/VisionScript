@@ -1,34 +1,23 @@
 import React, { createContext, useState } from 'react';
-import {sendLog} from './Utility.js';
+
 export const SessionContext = createContext();
 
 export const SessionProvider = ({ children }) => {
-
   const [isSessionActive, setSessionActive] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState(null);
-  const [sessionData, setSessionData] = useState({});
-
-  
-  const updateSessionData = (sessionId, data, timestamp) => {
-    if (!isSessionActive || !sessionId) return;
-    const currentData = sessionData[sessionId] || [];
-    currentData.push({ data, timestamp });
-    setSessionData({ ...sessionData, [sessionId]: currentData });
-  };
+  const [sessionResults, setSessionResults] = useState(null);
 
   const startSession = async (task) => {
     try {
       const response = await fetch('http://localhost:5000/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ task: task })
+        body: JSON.stringify({ task: task }),
       });
       const data = await response.json();
       if (response.ok) {
-        // sendLog(`Session started for task: ${task}\n\n`);
         setCurrentSessionId(data.sessionId);
         setSessionActive(true);
-        setSessionData({ ...sessionData, [data.sessionId]: [] });
       } else {
         throw new Error('Failed to start session');
       }
@@ -42,7 +31,7 @@ export const SessionProvider = ({ children }) => {
       const response = await fetch('http://localhost:5000/pause', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: currentSessionId })
+        body: JSON.stringify({ sessionId: currentSessionId }),
       });
       if (response.ok) {
         setSessionActive(false);
@@ -59,7 +48,7 @@ export const SessionProvider = ({ children }) => {
       const response = await fetch('http://localhost:5000/resume', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: currentSessionId })
+        body: JSON.stringify({ sessionId: currentSessionId }),
       });
       if (response.ok) {
         setSessionActive(true);
@@ -76,11 +65,15 @@ export const SessionProvider = ({ children }) => {
       const response = await fetch('http://localhost:5000/end', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: currentSessionId })
+        body: JSON.stringify({ sessionId: currentSessionId }),
       });
+
+      const data = await response.json();
+
       if (response.ok) {
         setSessionActive(false);
         setCurrentSessionId(null);
+        setSessionResults(data);
       } else {
         throw new Error('Failed to end session');
       }
@@ -90,16 +83,17 @@ export const SessionProvider = ({ children }) => {
   };
 
   return (
-    <SessionContext.Provider value={{
-      isSessionActive,
-      currentSessionId,
-      sessionData,
-      startSession,
-      updateSessionData,
-      pauseSession,
-      resumeSession,
-      endSession
-    }}>
+    <SessionContext.Provider
+      value={{
+        isSessionActive,
+        currentSessionId,
+        startSession,
+        pauseSession,
+        resumeSession,
+        endSession,
+        sessionResults,
+      }}
+    >
       {children}
     </SessionContext.Provider>
   );
