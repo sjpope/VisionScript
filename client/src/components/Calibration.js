@@ -1,15 +1,12 @@
-// Calibration.js
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import swal from 'sweetalert';
 import './Calibration.css';
 
 function Calibration({ onCalibrationComplete }) {
   const [pointCalibrate, setPointCalibrate] = useState(0);
-  const [calibrationPoints, setCalibrationPoints] = useState({});
+  const [calibrationCounts, setCalibrationCounts] = useState({});
   const [isCalibrating, setIsCalibrating] = useState(false);
-  const [showCalibrationPoints, setShowCalibrationPoints] = useState(false);
-  const calibrationRef = useRef({});
+  const [hidePt5, setHidePt5] = useState(true);
 
   useEffect(() => {
     // Initialize WebGazer if not already initialized
@@ -17,9 +14,18 @@ function Calibration({ onCalibrationComplete }) {
     if (!webgazer.isReady()) {
       webgazer.setRegression('ridge')
         .setTracker('clmtrackr')
-        .begin();
+        .begin()
+        .showVideoPreview(true)
+        .showPredictionPoints(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (isCalibrating) {
+      // Hide Pt5 initially
+      setHidePt5(true);
+    }
+  }, [isCalibrating]);
 
   const clearCanvas = () => {
     const canvas = document.getElementById('plotting_canvas');
@@ -29,39 +35,38 @@ function Calibration({ onCalibrationComplete }) {
     }
   };
 
-  const showCalibrationPoint = () => {
-    setShowCalibrationPoints(true);
-    document.getElementById('Pt5').style.display = 'none';
-  };
-
   const calPointClick = (id) => {
     const webgazer = window.webgazer;
-    const newCount = (calibrationRef.current[id] || 0) + 1;
-    calibrationRef.current[id] = newCount;
+    const newCount = (calibrationCounts[id] || 0) + 1;
+    setCalibrationCounts((prevCounts) => ({ ...prevCounts, [id]: newCount }));
 
-    // Update UI
+    // Record calibration point in WebGazer
     const pointElement = document.getElementById(id);
+    if (pointElement) {
+      webgazer.recordScreenPosition(
+        pointElement.offsetLeft + pointElement.offsetWidth / 2,
+        pointElement.offsetTop + pointElement.offsetHeight / 2
+      );
+    }
+
+    // Check if point is fully calibrated
     if (newCount === 5) {
-      pointElement.style.backgroundColor = 'yellow';
-      pointElement.disabled = true;
-      setPointCalibrate((prev) => prev + 1);
-    } else {
-      const opacity = 0.2 * newCount + 0.2;
-      pointElement.style.opacity = opacity;
-    }
+      setPointCalibrate((prev) => {
+        const newPointCalibrate = prev + 1;
 
-    // Record a point for calibration in WebGazer
-    webgazer.recordScreenPosition(pointElement.offsetLeft + pointElement.offsetWidth / 2, pointElement.offsetTop + pointElement.offsetHeight / 2);
+        if (newPointCalibrate === 8) {
+          setHidePt5(false); // Show Pt5
+        }
 
-    if (pointCalibrate + 1 === 8) {
-      document.getElementById('Pt5').style.display = 'block';
-    }
+        if (newPointCalibrate >= 9) {
+          // Calibration is complete
+          setIsCalibrating(false);
+          clearCanvas();
+          calculateAccuracy();
+        }
 
-    if (pointCalibrate + 1 >= 9) {
-      // Calibration is complete
-      setShowCalibrationPoints(false);
-      clearCanvas();
-      calculateAccuracy();
+        return newPointCalibrate;
+      });
     }
   };
 
@@ -71,26 +76,31 @@ function Calibration({ onCalibrationComplete }) {
       text: 'Please click on each of the 9 points on the screen. You must click on each point 5 times until it turns yellow. This will calibrate your eye movements.',
       button: 'Start',
     }).then(() => {
+      setCalibrationCounts({});
+      setPointCalibrate(0);
       setIsCalibrating(true);
-      showCalibrationPoint();
     });
   };
 
   const calculateAccuracy = () => {
     const webgazer = window.webgazer;
+
+    // Clear previous data and start storing new data
+    webgazer.clearData();
+    webgazer.params.storingPoints = true;
+
     swal({
       title: 'Calculating measurement',
       text: "Please don't move your mouse & stare at the middle dot for the next 5 seconds. This will allow us to calculate the accuracy of our predictions.",
-      closeOnEsc: false,
-      closeOnClickOutside: false,
       buttons: false,
       timer: 6000,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
     }).then(() => {
-      // Collect data for accuracy calculation
-      webgazer.showVideo(false);
-      webgazer.showFaceOverlay(false);
-      webgazer.showFaceFeedbackBox(false);
+      // Stop storing data
+      webgazer.params.storingPoints = false;
 
+      // Proceed with accuracy calculation
       const past50 = webgazer.getStoredPoints();
       const precision = calculatePrecision(past50);
 
@@ -150,17 +160,14 @@ function Calibration({ onCalibrationComplete }) {
 
   const resetCalibration = () => {
     // Reset calibration data
-    calibrationRef.current = {};
+    setCalibrationCounts({});
     setPointCalibrate(0);
-    setCalibrationPoints({});
-    setShowCalibrationPoints(true);
+    setHidePt5(true);
+    setIsCalibrating(true);
 
-    // Reset UI
-    document.querySelectorAll('.Calibration').forEach((element) => {
-      element.style.backgroundColor = 'red';
-      element.style.opacity = 0.2;
-      element.disabled = false;
-    });
+    // Reset WebGazer data
+    const webgazer = window.webgazer;
+    webgazer.clearData();
   };
 
   return (
@@ -173,15 +180,26 @@ function Calibration({ onCalibrationComplete }) {
 
       {isCalibrating && (
         <div id="CalibrationDiv">
-          {Array.from({ length: 9 }, (_, i) => (
-            <button
-              key={`Pt${i + 1}`}
-              id={`Pt${i + 1}`}
-              className="Calibration"
-              onClick={() => calPointClick(`Pt${i + 1}`)}
-              style={{ backgroundColor: 'red', opacity: 0.2 }}
-            ></button>
-          ))}
+          {Array.from({ length: 9 }, (_, i) => {
+            const ptId = `Pt${i + 1}`;
+            const isPt5 = ptId === 'Pt5';
+            const isHidden = isPt5 && hidePt5;
+            const count = calibrationCounts[ptId] || 0;
+            const isCalibrated = count >= 5;
+            const opacity = Math.min(1, 0.2 * count + 0.2);
+            const backgroundColor = isCalibrated ? 'yellow' : 'red';
+
+            return (
+              <button
+                key={ptId}
+                id={ptId}
+                className="Calibration"
+                onClick={() => calPointClick(ptId)}
+                style={{ backgroundColor, opacity, display: isHidden ? 'none' : 'block' }}
+                disabled={isCalibrated}
+              ></button>
+            );
+          })}
         </div>
       )}
 
