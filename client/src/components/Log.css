@@ -17,7 +17,7 @@
     margin-top: 10px; /* Additional margin for spacing */
     font-size: 12px;
     position: fixed; /* Ensure it doesn't overlap header */
-    z-index: 1001; /* Same layer as control panel */
+    z-index: 0; /* Same layer as control panel */
   }
 
   /*style={{ height: '200px', overflowY: 'scroll', border: '1px solid #ccc', padding: '10px', marginTop: '20px' }}*/

@@ -2,13 +2,14 @@ import React, { useState, useContext } from 'react';
 import { SessionContext } from './SessionContext';
 import './ControlPanel.css';
 
-const ControlPanel = () => {
+const ControlPanel = ({ onStartCalibration }) => {
   const [task, setTask] = useState('development');
   const { startSession, pauseSession, resumeSession, endSession } =
     useContext(SessionContext);
 
   return (
     <div id="controlPanel">
+      <button onClick={onStartCalibration}>Start Calibration</button>
       <div id="taskSelection">
         {['development', 'code_review', 'debugging'].map((t) => (
           <label key={t}>
