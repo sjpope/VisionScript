@@ -7,22 +7,26 @@ function Calibration({ onCalibrationComplete }) {
   const [calibrationCounts, setCalibrationCounts] = useState({});
   const [isCalibrating, setIsCalibrating] = useState(false);
   const [hidePt5, setHidePt5] = useState(true);
+  const [showMiddleDot, setShowMiddleDot] = useState(false);
 
   useEffect(() => {
-    // Initialize WebGazer if not already initialized
+    // Initialize WebGazer
     const webgazer = window.webgazer;
     if (!webgazer.isReady()) {
       webgazer.setRegression('ridge')
         .setTracker('clmtrackr')
         .begin()
+        .showPredictionPoints(true)
         .showVideoPreview(true)
-        .showPredictionPoints(true);
+        .showFaceOverlay(true)
+        .showFaceFeedbackBox(true);
+    } else {
+      webgazer.showPredictionPoints(true);
     }
   }, []);
 
   useEffect(() => {
     if (isCalibrating) {
-      // Hide Pt5 initially
       setHidePt5(true);
     }
   }, [isCalibrating]);
@@ -40,7 +44,7 @@ function Calibration({ onCalibrationComplete }) {
     const newCount = (calibrationCounts[id] || 0) + 1;
     setCalibrationCounts((prevCounts) => ({ ...prevCounts, [id]: newCount }));
 
-    // Record calibration point in WebGazer
+    // Record calibration point
     const pointElement = document.getElementById(id);
     if (pointElement) {
       webgazer.recordScreenPosition(
@@ -49,17 +53,16 @@ function Calibration({ onCalibrationComplete }) {
       );
     }
 
-    // Check if point is fully calibrated
+    // Update calibration progress
     if (newCount === 5) {
       setPointCalibrate((prev) => {
         const newPointCalibrate = prev + 1;
 
         if (newPointCalibrate === 8) {
-          setHidePt5(false); // Show Pt5
+          setHidePt5(false); // Show middle point
         }
 
         if (newPointCalibrate >= 9) {
-          // Calibration is complete
           setIsCalibrating(false);
           clearCanvas();
           calculateAccuracy();
@@ -73,7 +76,7 @@ function Calibration({ onCalibrationComplete }) {
   const handleStartCalibration = () => {
     swal({
       title: 'Calibration',
-      text: 'Please click on each of the 9 points on the screen. You must click on each point 5 times until it turns yellow. This will calibrate your eye movements.',
+      text: 'Please click on each of the 9 points on the screen...',
       button: 'Start',
     }).then(() => {
       setCalibrationCounts({});
@@ -84,44 +87,44 @@ function Calibration({ onCalibrationComplete }) {
 
   const calculateAccuracy = () => {
     const webgazer = window.webgazer;
-
-    // Clear previous data and start storing new data
     webgazer.clearData();
-    webgazer.params.storingPoints = true;
 
     swal({
       title: 'Calculating measurement',
-      text: "Please don't move your mouse & stare at the middle dot for the next 5 seconds. This will allow us to calculate the accuracy of our predictions.",
-      buttons: false,
-      timer: 6000,
+      text: "Please click 'Start' when you're ready...",
+      button: 'Start',
       allowOutsideClick: false,
       allowEscapeKey: false,
     }).then(() => {
-      // Stop storing data
-      webgazer.params.storingPoints = false;
+      setShowMiddleDot(true); // Show the middle dot
+      webgazer.params.storingPoints = true;
+      webgazer.showPredictionPoints(true);
 
-      // Proceed with accuracy calculation
-      const past50 = webgazer.getStoredPoints();
-      const precision = calculatePrecision(past50);
+      setTimeout(() => {
+        setShowMiddleDot(false); // Hide the middle dot
+        webgazer.params.storingPoints = false;
 
-      swal({
-        title: `Your accuracy measure is ${precision}%`,
-        buttons: {
-          cancel: 'Recalibrate',
-          confirm: 'Accept',
-        },
-      }).then((isConfirm) => {
-        if (isConfirm) {
-          // Save the model
-          webgazer.saveDataAcrossSessions(true);
-          swal('Calibration complete!', 'You can now use the application.', 'success');
-          if (onCalibrationComplete) onCalibrationComplete();
-          setIsCalibrating(false);
-        } else {
-          // Reset calibration
-          resetCalibration();
-        }
-      });
+        // Proceed with accuracy calculation
+        const past50 = webgazer.getStoredPoints();
+        const precision = calculatePrecision(past50);
+
+        swal({
+          title: `Your accuracy measure is ${precision}%`,
+          buttons: {
+            cancel: 'Recalibrate',
+            confirm: 'Accept',
+          },
+        }).then((isConfirm) => {
+          if (isConfirm) {
+            webgazer.saveDataAcrossSessions(true);
+            swal('Calibration complete!', 'You can now use the application.', 'success');
+            if (onCalibrationComplete) onCalibrationComplete();
+            setIsCalibrating(false);
+          } else {
+            resetCalibration();
+          }
+        });
+      }, 5000); // 5-second timer
     });
   };
 
@@ -159,13 +162,10 @@ function Calibration({ onCalibrationComplete }) {
   };
 
   const resetCalibration = () => {
-    // Reset calibration data
     setCalibrationCounts({});
     setPointCalibrate(0);
     setHidePt5(true);
     setIsCalibrating(true);
-
-    // Reset WebGazer data
     const webgazer = window.webgazer;
     webgazer.clearData();
   };
@@ -201,6 +201,23 @@ function Calibration({ onCalibrationComplete }) {
             );
           })}
         </div>
+      )}
+
+      {showMiddleDot && (
+        <div
+          id="middleDot"
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            width: '20px',
+            height: '20px',
+            backgroundColor: 'red',
+            borderRadius: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 1000,
+          }}
+        ></div>
       )}
 
       <canvas id="plotting_canvas" width={window.innerWidth} height={window.innerHeight} style={{ display: 'none' }}></canvas>
