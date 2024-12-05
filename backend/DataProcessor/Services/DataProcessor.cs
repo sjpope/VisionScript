@@ -29,7 +29,7 @@ namespace DataProcessor.Services
                 window.Add(point);
                 double dispersion = CalculateDispersion(window);
 
-                if (ct <= 30 || ct >= data.Count - 30)
+                if (ct <= 10 || ct >= data.Count - 10)
                     Console.WriteLine($"LOG: Point {ct++}: {point.Timestamp} ms ---- Dispersion: {dispersion}\n\n");
 
                 if (dispersion <= maxPixelDispersion) // Points are close enough to be considered part of the same fixation
