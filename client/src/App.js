@@ -133,12 +133,16 @@ function App() {
 
   return (
     <div className="App">
-      <h1>VisionScript</h1>
-      <h2>Cognitive Code Console</h2>
-      <ControlPanel />
-      {sessionResults && <Results results={sessionResults} />}
-      <Log sessionId={currentSessionId} />
-      <Calibration />
+      <header>
+        <h1>VisionScript</h1>
+        <h2>Cognitive Code Console</h2>
+        <ControlPanel />
+      </header>
+      <main>
+        <Calibration />
+        {sessionResults && <Results results={sessionResults} />}
+        <Log sessionId={currentSessionId} />
+      </main>
     </div>
   );
 }

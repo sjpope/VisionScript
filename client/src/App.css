@@ -1,4 +1,28 @@
 .App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  z-index: 1000;
+  padding: 10px;
+}
+
+main {
+  flex: 1;
+  padding: 20px;
+}
+
+main > * {
+  margin-bottom: 20px;
+}
+
+h1, h2 {
+  margin: 0;
   text-align: center;
 }
 
@@ -39,16 +63,17 @@
 
 
 #webgazerVideoContainer {
-  position: fixed;
+  position: fixed !important;
   bottom: 20px;
   right: 20px;
-  cursor: move;
+  z-index: 1000;
+  width: 320px !important;
+  height: 240px !important;
+}
 
-  /* Above the canvas, below logs and controls */
-  z-index: 1001;
-
-  border: 1px solid #ccc;
-  background-color: #000;
+#webgazerVideoContainer video {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* #webgazerVideoFeed {

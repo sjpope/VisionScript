@@ -26,6 +26,7 @@ ChartJS.register(
 );
 
 function Results({ results }) {
+  console.log('Results data:', results);
 
   const {
     sessionId,
@@ -34,24 +35,26 @@ function Results({ results }) {
     cognitiveLoad,
     fixations = [],
     saccades = [],
-  } = results;
+  } = results || {};
 
-  // Ensure metrics is defined
+  console.log('Metrics data:', metrics);
+
+  // Ensure metrics is defined and use camelCase property names
   const {
-    TotalFixationDuration = 0,
-    AverageFixationDuration = 0,
-    FixationCount = 0,
-    TotalSaccadeAmplitude = 0,
-    AverageSaccadeAmplitude = 0,
+    totalFixationDuration = 0,
+    averageFixationDuration = 0,
+    fixationCount = 0,
+    totalSaccadeAmplitude = 0,
+    averageSaccadeAmplitude = 0,
   } = metrics || {};
 
   // Prepare data using useMemo to prevent unnecessary re-renders
   const fixationData = useMemo(() => ({
-    labels: fixations.map((fix) => fix.StartTime),
+    labels: fixations.map((fix) => fix.startTime),
     datasets: [
       {
         label: 'Fixation Duration (ms)',
-        data: fixations.map((fix) => fix.Duration),
+        data: fixations.map((fix) => fix.duration),
         fill: false,
         backgroundColor: 'blue',
         borderColor: 'blue',
@@ -60,11 +63,11 @@ function Results({ results }) {
   }), [fixations]);
 
   const saccadeData = useMemo(() => ({
-    labels: saccades.map((sac) => sac.StartTime),
+    labels: saccades.map((sac) => sac.startTime),
     datasets: [
       {
         label: 'Saccade Amplitude (pixels)',
-        data: saccades.map((sac) => sac.Amplitude),
+        data: saccades.map((sac) => sac.amplitude),
         fill: false,
         backgroundColor: 'red',
         borderColor: 'red',
@@ -76,7 +79,7 @@ function Results({ results }) {
     datasets: [
       {
         label: 'Fixation Points',
-        data: fixations.map((fix) => ({ x: fix.X, y: fix.Y })),
+        data: fixations.map((fix) => ({ x: fix.x, y: fix.y })),
         backgroundColor: 'green',
       },
     ],
@@ -151,30 +154,42 @@ function Results({ results }) {
     <div id="sessionResults">
       <h2>Session Results</h2>
       <div id="results">
-        <p>
-          <strong>Session ID:</strong> {sessionId}
-        </p>
-        <p>
-          <strong>Task:</strong> {task}
-        </p>
-        <p>
-          <strong>Cognitive Load:</strong> {cognitiveLoad}
-        </p>
-        <p>
-          <strong>Total Fixation Duration:</strong> {TotalFixationDuration.toFixed(2)} ms
-        </p>
-        <p>
-          <strong>Average Fixation Duration:</strong> {AverageFixationDuration.toFixed(2)} ms
-        </p>
-        <p>
-          <strong>Fixation Count:</strong> {FixationCount}
-        </p>
-        <p>
-          <strong>Total Saccade Amplitude:</strong> {TotalSaccadeAmplitude.toFixed(2)} pixels
-        </p>
-        <p>
-          <strong>Average Saccade Amplitude:</strong> {AverageSaccadeAmplitude.toFixed(2)} pixels
-        </p>
+        <table>
+          <tbody>
+            <tr>
+              <td>Session ID:</td>
+              <td>{sessionId}</td>
+            </tr>
+            <tr>
+              <td>Task:</td>
+              <td>{task}</td>
+            </tr>
+            <tr>
+              <td>Cognitive Load:</td>
+              <td>{cognitiveLoad}</td>
+            </tr>
+            <tr>
+              <td>Total Fixation Duration:</td>
+              <td>{totalFixationDuration.toFixed(2)} ms</td>
+            </tr>
+            <tr>
+              <td>Average Fixation Duration:</td>
+              <td>{averageFixationDuration.toFixed(2)} ms</td>
+            </tr>
+            <tr>
+              <td>Fixation Count:</td>
+              <td>{fixationCount}</td>
+            </tr>
+            <tr>
+              <td>Total Saccade Amplitude:</td>
+              <td>{totalSaccadeAmplitude.toFixed(2)} pixels</td>
+            </tr>
+            <tr>
+              <td>Average Saccade Amplitude:</td>
+              <td>{averageSaccadeAmplitude.toFixed(2)} pixels</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <div id="resultCharts">
