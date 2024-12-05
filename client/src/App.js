@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useContext } from 'react';
+import React, { useEffect, useRef, useContext, useState  } from 'react';
 import Calibration from './components/Calibration';
 import ControlPanel from './components/ControlPanel';
 import Results from './components/Results';
@@ -11,6 +11,11 @@ function App() {
   const isSessionActiveRef = useRef(isSessionActive);
   const currentSessionIdRef = useRef(currentSessionId);
   const webgazerInitialized = useRef(false);
+  const [showCalibration, setShowCalibration] = useState(false);
+
+  const handleCalibrationComplete = () => {
+    setShowCalibration(false);
+  };
 
   // Update refs when session state changes
   useEffect(() => {
@@ -136,10 +141,10 @@ function App() {
       <header>
         <h1>VisionScript</h1>
         <h2>Cognitive Code Console</h2>
-        <ControlPanel />
+        <ControlPanel onStartCalibration={() => setShowCalibration(true)} />
       </header>
       <main>
-        <Calibration />
+        {showCalibration && <Calibration onCalibrationComplete={handleCalibrationComplete} />}
         {sessionResults && <Results results={sessionResults} />}
         <Log sessionId={currentSessionId} />
       </main>
