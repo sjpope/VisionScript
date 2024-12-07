@@ -1,0 +1,92 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  z-index: 1000;
+  padding: 10px;
+}
+
+main {
+  flex: 1;
+  padding: 20px;
+}
+
+main > * {
+  margin-bottom: 20px;
+}
+
+h1, h2 {
+  margin: 0;
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+#webgazerVideoContainer {
+  position: fixed !important;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 320px !important;
+  height: 240px !important;
+}
+
+#webgazerVideoContainer video {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* #webgazerVideoFeed {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  z-index: 500;
+  cursor: move;
+} */
+
+/* #webgazerCanvas {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  z-index: 600;
+} */

@@ -6,45 +6,39 @@ namespace DataProcessor.Services
     public class ProcessingService
     {
         // TO-DO: Implement Data Processing Logic
-        public ProcessResult ProcessData(List<EyeData> sessionData)
+        public ProcessResult ProcessData(List<EyeData> data)
         {
             ProcessResult res = new ProcessResult();
-
             List<EyeData> window = new List<EyeData>();
-
             List<Fixation> fixations = new List<Fixation>();
             List<Saccade> saccades = new List<Saccade>();
 
-            // (75 to 100 to 150)
-            double dispersionThreshold = 150; // Pixels -> Maximum dispersion/distance between points to consider a fixation
+            double maxPixelDispersion = 250; // Pixels -> Maximum dispersion/distance between points to consider a fixation     // (75 to 100 to 150 to 200 to 250)
+            double minFixationDuration = 50; // ms -> Minimum duration to consider a fixation           // (350 to 200 to 50)
+
+            double start = data.First().Timestamp,    end = 0;
+            int ct = 0;
+            EyeData? prevPoint = null;
             
-            // (350 to 200)
-            double minFixation = 200; // ms -> Minimum duration to consider a fixation
-
-            double start = sessionData[0].Timestamp, end = 0;
-
-            /*
-            {"x":463.4866564651469,"y":168.66635159193666,"timestamp":100820.19999998808},
-            {"x":371.64037621748116,"y":159.9519054142047,"timestamp":100967.30000001192}]
-            */
-            int iter = 1;
-            foreach (var point in sessionData)
+            foreach (EyeData point in data)
             {
-                // Calculate dispersion of the window
-                var dispersion = CalculateDispersion(window);
-                window.Add(point);
+                // Start a new fixation if time between points is too long
+                // if (window.Count > 0 && (point.Timestamp - window.Last().Timestamp) > minFixationDuration)
+                //     window.Clear();
 
-                if (dispersion < dispersionThreshold)
-                {
-                    // Console.WriteLine("Point " + iter + " is a potential fixation within fixation window" + fixations.Count + "\n");
-                    // it's a potential fixation
-                    end = point.Timestamp;
-                }
+                window.Add(point);
+                double dispersion = CalculateDispersion(window);
+
+                if (ct <= 10 || ct >= data.Count - 10)
+                    Console.WriteLine($"LOG: Point {ct++}: {point.Timestamp} ms ---- Dispersion: {dispersion}\n\n");
+
+                if (dispersion <= maxPixelDispersion) // Points are close enough to be considered part of the same fixation
+                    end = point.Timestamp; 
                 else
                 {
-                    if (end - start >= minFixation)
+                    if ((end - start) >= minFixationDuration) // Our current dispersion run is over but we have enough to record fixation
                     {
-                        fixations.Add(new Fixation()
+                        fixations.Add(new Fixation
                         {
                             StartTime = start,
                             EndTime = end,
@@ -54,14 +48,14 @@ namespace DataProcessor.Services
                         });
                     }
 
-                    // start new window/group of points here
+                    // Reset the window with the current point as the start of a new potential fixation
                     window.Clear();
                     window.Add(point);
                     start = point.Timestamp;
                     end = point.Timestamp;
                 }
 
-                iter++;
+                prevPoint = point; // Update the last processed point
             }
 
             Console.WriteLine("\nFixation Count: " + fixations.Count);
@@ -71,7 +65,7 @@ namespace DataProcessor.Services
             {
                 double duration = end - start;
 
-                if (duration >= minFixation)
+                if (duration >= minFixationDuration)
                     fixations.Add(new Fixation()
                     {
                         StartTime = start,
@@ -110,7 +104,6 @@ namespace DataProcessor.Services
 
             Console.WriteLine("Saccade Count: " + saccades.Count);  
 
-            // Calculate Metrics
             Metrics metrics = new Metrics();
             metrics.TotalFixationDuration = fixations.Sum(f => f.Duration);
             metrics.AverageFixationDuration = fixations.Average(f => f.Duration);
@@ -118,10 +111,8 @@ namespace DataProcessor.Services
             metrics.TotalSaccadeAmplitude = saccades.Sum(s => s.Amplitude);
             metrics.AverageSaccadeAmplitude = saccades.Average(s => s.Amplitude);
 
-            // Estimate cognitive load based on metrics
             string cognitiveLoad = EstimateCognitiveLoad(metrics);
 
-            // Prepare the ProcessResult to return
             res.Fixations = fixations;
             res.Saccades = saccades;
             res.Metrics = metrics;
@@ -131,10 +122,9 @@ namespace DataProcessor.Services
             return res;
         }
 
-        // Function to calculate dispersion of gaze points in the current window
         private double CalculateDispersion(List<EyeData> points)
         {
-            if (points.Count == 0)
+            if (points.Count < 2)
                 return 0;
 
             try
@@ -156,7 +146,6 @@ namespace DataProcessor.Services
             }
         }
 
-        // Function to estimate cognitive load based on metrics
         private string EstimateCognitiveLoad(Metrics metrics)
         {
             // Cognitive load can be estimated using fixation and saccade metrics
