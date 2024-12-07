@@ -6,8 +6,9 @@ using System.Text.Json.Serialization;
 using System.Net.Http.Json;
 using Newtonsoft.Json;
 
-// curl -X POST "http://localhost:5080/Core/process" -H "Content-Type: application/json" -d @"C:\Users\sampo\OneDrive\Documents\TXST\IND. STUDY\Repos\VisionScript\session-2.json"
-
+// cd OneDrive\Documents\TXST\IND. STUDY\Repos\VisionScript\backend\DataProcessor
+// curl -X POST "http://localhost:5080/Core/process" -H "Content-Type: application/json" -d @"C:\Users\sampo\OneDrive\Documents\TXST\IND. STUDY\Repos\VisionScript\backend\data\raw\session-1731834403808.json"
+// C:\Users\sampo\OneDrive\Documents\TXST\IND. STUDY\Repos\VisionScript\backend\data\raw\session-1731834403808.json
 namespace DataProcessor.Controllers
 {
     
@@ -25,24 +26,24 @@ namespace DataProcessor.Controllers
         }
 
         [HttpPost("process")]
-        public IActionResult ProcessData([FromBody] List<EyeData> sessionData)
+        public IActionResult ProcessData([FromBody] SessionData sessionData)
         {
 
-            if (sessionData == null || sessionData.Count == 0)  return BadRequest("Session data is empty.");
+            if (sessionData == null || sessionData.data.Count == 0)  return BadRequest("Session data is empty.");
 
-            // Console.WriteLine("Oh brother...");
-            Console.WriteLine(sessionData.Count + " items in session data.");
-            Console.WriteLine(JsonConvert.SerializeObject(sessionData.First()));
+            Console.WriteLine($"\n\nWE'VE GOT DATA.\n{sessionData.data.Count} items in session data. Session ID: {sessionData.sessionId} Task ID: {sessionData.task}\n");
+            Console.WriteLine(JsonConvert.SerializeObject(sessionData.data.First()));
             
             try
             {
-                // {"Id":0,"UserId":0,"SessionId":0,"Timestamp":0.0,"GazeX":500.2759796874867,"GazeY":500.3435009314155,"PupilDiameter":0.0}
-                
-                // TO-DO: Ensure Session ID and Task ID are included in the request
-                string path = Path.Combine("C:/Users/sampo/OneDrive/Documents/TXST/IND. STUDY/Repos/VisionScript/backend/data/raw", $"session-data-{DateTime.Now.ToString("yyyyMMddHHmmss")}.json");
+                string path = Path.Combine("C:/Users/sampo/OneDrive/Documents/TXST/IND. STUDY/Repos/VisionScript/backend/data/raw", $"session-{sessionData.sessionId}.json");
                 System.IO.File.WriteAllText(path, JsonConvert.SerializeObject(sessionData));
                 
-                ProcessResult result = _dataProcessor.ProcessData(sessionData);
+                ProcessResult result = _dataProcessor.ProcessData(sessionData.data);
+
+                path = Path.Combine("C:/Users/sampo/OneDrive/Documents/TXST/IND. STUDY/Repos/VisionScript/backend/data/processed", $"session-{sessionData.sessionId}-processed.json");
+                System.IO.File.WriteAllText(path, JsonConvert.SerializeObject(result));
+
                 return Ok(result);
             }
             catch (Exception e)

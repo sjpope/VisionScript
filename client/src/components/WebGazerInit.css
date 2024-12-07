@@ -1,0 +1,19 @@
+#webgazerVideoContainer {
+    z-index: 1000 !important;
+    border: 1px solid #ccc;
+    background-color: #000;
+  }
+
+  #webgazerVideoFeed {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    z-index: 500;
+  }
+
+  #webgazerCanvas {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    z-index: 600;
+  }

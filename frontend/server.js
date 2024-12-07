@@ -3,27 +3,18 @@
 // The red dot represents where the system believes you are looking on the screen at that moment.
 
 const express = require('express'); // web server
-const bodyParser = require('body-parser'); // for parsing JSON
-const fs = require('fs'); // for writing to a file
+const bodyParser = require('body-parser');
+const fs = require('fs');
 const path = require('path');
-const axios = require('axios'); // for making requests to the backend
-const app = express();
+const axios = require('axios'); 
+const cors = require('cors');
 
-const PORT = 3000;
+const app = express();
+const PORT = 5000;
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
-
-// app.get('/', (req, res) => {
-//   res.sendFile(__dirname + '/public/index.html');
-// });
-
-// app.post('/data', (req, res) => {
-//   const { data } = req.body;
-//   fs.appendFileSync('eyeData.txt', JSON.stringify(data) + '\n');
-//   res.status(200).send('Data received');
-// });
-
+app.use(cors()); // {origin: 'http://localhost:3000'}
 
 let sessionData = [];
 let sessionId = 0;
@@ -53,6 +44,8 @@ app.post('/start', (req, res) => {
   const task = req.body.task;
   sessionId = Date.now().toString();
   sessionData[sessionId] = { data: [], task: task };
+
+  console.log(`Session ${sessionId} started for task: ${task}\n`);
   res.send({ message: 'Session started', sessionId: sessionId });
 });
 
@@ -70,11 +63,14 @@ app.post('/end', async (req, res) => {
     const task = sessionData[sessionId].task;
 
     try {
-      // Send data to the C# backend service
-      // console.log('\nPRIOR TO POST CALL:\n\n' + sessionData[sessionId].data);
 
-      // Also send task, session ID to backend. Maybe as headers?
-      const response = await axios.post('http://localhost:5080/Core/process', sessionData[sessionId].data);
+      // if (sessionData[sessionId].data.length > 0) { sessionData[sessionId].data.forEach((entry, index) => { console.log(`Entry ${index} Timestamp: ${entry.timestamp}`); }); } 
+
+      const response = await axios.post('http://localhost:5080/Core/process', {
+        sessionId: sessionId,
+        task: sessionData[sessionId].task,
+        data: sessionData[sessionId].data
+      });
 
       const processedData = response.data;
 
@@ -87,6 +83,8 @@ app.post('/end', async (req, res) => {
         fixations: processedData.fixations,
         saccades: processedData.saccades,
       });
+
+      console.log(`Session ${sessionId} ended for task: ${task}\n\nMetrics:`, processedData.metrics, '\n\nCognitive Load:', processedData.cognitiveLoad, '\n\nFixations:', processedData.fixations, '\n\nSaccades:', processedData.saccades);
 
     } 
     catch (error) 
@@ -121,6 +119,12 @@ app.get('/results/:sessionId', (req, res) => {
   } else {
     res.status(404).send('Session results not found.');
   }
+});
+
+app.post('/log', (req, res) => {
+  var msg = req.body.message;
+  console.log(msg);
+  res.status(200).send('Log received');
 });
 
 app.listen(PORT, () => {

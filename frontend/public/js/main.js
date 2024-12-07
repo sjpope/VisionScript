@@ -48,3 +48,71 @@ function makeVideoFeedDraggable() {
   };
 }
 
+function updateCharts(data) {
+  const fixationCtx = document.getElementById('fixationDurationChart').getContext('2d');
+  const saccadeCtx = document.getElementById('saccadeAmplitudeChart').getContext('2d');
+
+  // Check if charts already exist, destroy if they do
+  if (window.fixationChart) {
+      window.fixationChart.destroy();
+  }
+  if (window.saccadeChart) {
+      window.saccadeChart.destroy();
+  }
+
+  // Create new charts
+  window.fixationChart = new Chart(fixationCtx, {
+      type: 'line', // or 'bar' based on preference
+      data: {
+          labels: data.map((session, index) => `Session ${index + 1}`),
+          datasets: [{
+              label: 'Total Fixation Duration',
+              data: data.map(session => session.totalFixationDuration),
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              borderColor: 'rgba(255, 99, 132, 1)',
+              borderWidth: 1
+          }, {
+              label: 'Average Fixation Duration',
+              data: data.map(session => session.averageFixationDuration),
+              backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              y: {
+                  beginAtZero: true
+              }
+          }
+      }
+  });
+
+  window.saccadeChart = new Chart(saccadeCtx, {
+      type: 'line', // or 'bar' based on preference
+      data: {
+          labels: data.map((session, index) => `Session ${index + 1}`),
+          datasets: [{
+              label: 'Total Saccade Amplitude',
+              data: data.map(session => session.totalSaccadeAmplitude),
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1
+          }, {
+              label: 'Average Saccade Amplitude',
+              data: data.map(session => session.averageSaccadeAmplitude),
+              backgroundColor: 'rgba(153, 102, 255, 0.2)',
+              borderColor: 'rgba(153, 102, 255, 1)',
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              y: {
+                  beginAtZero: true
+              }
+          }
+      }
+  });
+}
+
