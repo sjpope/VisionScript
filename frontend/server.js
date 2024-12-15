@@ -84,7 +84,7 @@ app.post('/end', async (req, res) => {
         saccades: processedData.saccades,
       });
 
-      console.log(`Session ${sessionId} ended for task: ${task}\n\nMetrics:`, processedData.metrics, '\n\nCognitive Load:', processedData.cognitiveLoad, '\n\nFixations:', processedData.fixations, '\n\nSaccades:', processedData.saccades);
+      console.log(`Session ${sessionId} ended for task: ${task}\n\n`);
 
     } 
     catch (error) 
