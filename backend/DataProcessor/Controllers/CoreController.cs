@@ -41,7 +41,7 @@ namespace DataProcessor.Controllers
                 
                 ProcessResult result = _dataProcessor.ProcessData(sessionData.data);
 
-                path = Path.Combine("C:/Users/sampo/OneDrive/Documents/TXST/IND. STUDY/Repos/VisionScript/backend/data/processed", $"session-{sessionData.sessionId}-processed.json");
+                path = Path.Combine("C:/Users/sampo/OneDrive/Documents/TXST/IND. STUDY/Repos/VisionScript/backend/data/processed", $"session-{sessionData.sessionId}-{sessionData.task}-processed.json");
                 System.IO.File.WriteAllText(path, JsonConvert.SerializeObject(result));
 
                 return Ok(result);

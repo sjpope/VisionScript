@@ -29,8 +29,8 @@ namespace DataProcessor.Services
                 window.Add(point);
                 double dispersion = CalculateDispersion(window);
 
-                if (ct <= 10 || ct >= data.Count - 10)
-                    Console.WriteLine($"LOG: Point {ct++}: {point.Timestamp} ms ---- Dispersion: {dispersion}\n\n");
+                // if (ct <= 10 || ct >= data.Count - 10)
+                //     Console.WriteLine($"LOG: Point {ct++}: {point.Timestamp} ms ---- Dispersion: {dispersion}\n\n");
 
                 if (dispersion <= maxPixelDispersion) // Points are close enough to be considered part of the same fixation
                     end = point.Timestamp; 
@@ -118,6 +118,7 @@ namespace DataProcessor.Services
             res.Metrics = metrics;
             res.CognitiveLoad = cognitiveLoad;
 
+            Console.WriteLine($"\nRESULTS ARE IN:\n\nAverage Fixation Duration: {metrics.AverageFixationDuration} ms ---- Average Saccade Amplitude: {metrics.AverageSaccadeAmplitude} px");
             Console.WriteLine("Cognitive Load: " + cognitiveLoad);
             return res;
         }
@@ -149,16 +150,20 @@ namespace DataProcessor.Services
         private string EstimateCognitiveLoad(Metrics metrics)
         {
             // Cognitive load can be estimated using fixation and saccade metrics
-            if (metrics.AverageFixationDuration > 300 && metrics.AverageSaccadeAmplitude < 20)
+
+            // 549, 230 
+            // 337, 387
+            if (metrics.AverageFixationDuration > 800 && metrics.AverageSaccadeAmplitude < 190)
             {
                 return "High";
             }
-            else if (metrics.AverageFixationDuration > 200 && metrics.AverageSaccadeAmplitude < 40)
+            else if (metrics.AverageFixationDuration > 650 && metrics.AverageSaccadeAmplitude < 220)
             {
                 return "Moderate";
             }
             else
             {
+                // Fixation Duration avg was less than 200 ms meaning the user was not focused on any point for long
                 return "Low";
             }
         }
